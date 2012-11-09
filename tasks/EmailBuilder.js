@@ -36,7 +36,7 @@ module.exports = function(grunt) {
           inline = grunt.file.read(css), // CSS to be inlined
           output = juice(doc, inline);
 
-      console.log(output);
+      //console.log(output);
 
       // Make directory for email, put file up in t'hur
       grunt.file.write('email.html', output);
@@ -58,16 +58,44 @@ module.exports = function(grunt) {
     function sendLitmus(data, title) {
       // Write the data xml file to curl, prolly can get rid of this somehow.
 
-      grunt.file.write('data.xml', xmlBuild(data, title))
+      var xml = xmlBuild(data, title);
+      grunt.file.write('data.xml', xml);
 
       var username = options.litmus.username,
           password = options.litmus.password,
           accountUrl = options.litmus.url;
 
-      // Curl to Litmus
-      
-      var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+' -d @data.xml';
+      var httpOptions = {
+        host : accountUrl,
+        path: '/emails.xml',
+        auth : username+':'+password,
+        method: 'POST',
+        headers : {
+          'Accept' :'application/xml\'' ,
+          'Content-Type': 'application/xml\''
+        }
+      }
+      console.log(options);
+      console.log(httpOptions);
+            
+      var req = http.request(httpOptions, function(res) {
+        console.log('STATUS: ' + res.statusCode);
+        console.log('HEADERS: ' + JSON.stringify(res.headers));
+        res.setEncoding('utf8');
+        res.on('data', function (chunk) {
+          console.log('BODY: ' + chunk);
+        });
+      });
 
+      req.on('error', function(e) {
+        console.log('problem with request: ' + e.message);
+      });
+
+      req.write(xml);
+      req.end();
+      
+      /*
+      var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+' -d @data.xml';
       
       grunt.helper('exec', command, function(error, stdout, stderr) {
         console.log('stdout: ' + stdout);
@@ -75,6 +103,7 @@ module.exports = function(grunt) {
 
         if(error !== null) console.log('exec error: ' + error);
       });
+      */
     }
 
     //Application XMl Builder
@@ -111,11 +140,10 @@ module.exports = function(grunt) {
     return 'EmailBuilder!!!';
   });
 
-
   var cm = require('child_process').exec;
-
   grunt.registerHelper('exec', function(command, callback) {
-    console.log(command)
+
+    console.log(command);
     cm(command, function(err, stdout, stderr) {
 
       if (err || stderr) { callback(err || stderr, stdout); return; }
