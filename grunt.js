@@ -29,7 +29,7 @@ module.exports = function(grunt) {
       },
       globals: {}
     },
-    EmailBuilder {
+    EmailBuilder: {
       options: {
         litmus : {
           username : 'username',

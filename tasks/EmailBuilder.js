@@ -15,15 +15,22 @@ module.exports = function(grunt) {
   // TASKS
   // ==========================================================================
 
+
+  var fs = require('fs');
+
   grunt.registerTask('EmailBuilder', 'Your task description goes here.', function() {
     grunt.log.write(grunt.helper('EmailBuilder'));
 
-
     var helpers = require('grunt-lib-contrib').init(grunt);
     var options = helpers.options(this);
+    var files = grunt.config('EmailBuilder.files');
+
+
+    // this.files = helpers.normalizeMultiTaskFiles(this.data, this.target);
+
+    console.log()
 
     var juice = require('juice'),
-      fs = require('fs'),
       http = require('http'),
       builder = require('xmlbuilder'),
       util = require('util'),
@@ -36,8 +43,8 @@ module.exports = function(grunt) {
 
     // Shit we need to make shit work    
     var date = String(Math.round(new Date().getTime() / 1000)),
-        html = read('html/email.html'),
-        css = read('css/default.css'),
+        html = read('example/html/email.html'),
+        css = read('example/css/default.css'),
         output = juice(html, css),
         title = document.title+' '+date,
         username = 'username',
