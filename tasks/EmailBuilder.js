@@ -15,96 +15,91 @@ module.exports = function(grunt) {
   // TASKS
   // ==========================================================================
 
-
-  var fs = require('fs');
-
   grunt.registerTask('EmailBuilder', 'Your task description goes here.', function() {
     grunt.log.write(grunt.helper('EmailBuilder'));
 
-    var helpers = require('grunt-lib-contrib').init(grunt);
-    var options = helpers.options(this);
-    var files = grunt.config('EmailBuilder.files');
-
-
-    // this.files = helpers.normalizeMultiTaskFiles(this.data, this.target);
-
-    console.log()
-
     var juice = require('juice'),
-      http = require('http'),
-      builder = require('xmlbuilder'),
-      util = require('util'),
-      jsdom = require('jsdom'),
-      _ = require('underscore');
-      
-    // Js dom - Might use this to sniff out the style pathways for css. Gets title atm
-    var document = jsdom.html(html),
-        window = document.createWindow();
+        http = require('http'),
+        builder = require('xmlbuilder'),
+        util = require('util'),
+        jsdom = require('jsdom'),
+        _ = require('underscore');
 
-    // Shit we need to make shit work    
-    var date = String(Math.round(new Date().getTime() / 1000)),
-        html = read('example/html/email.html'),
-        css = read('example/css/default.css'),
-        output = juice(html, css),
-        title = document.title+' '+date,
-        username = 'username',
-        password = 'password',
-        applications = ['gmail', 'hotmail'],
-        accountUrl = 'https://yoursite.litmus.com/emails.xml';
+    var helpers = require('grunt-lib-contrib').init(grunt),
+        options = helpers.options(this),
+        files = grunt.config('EmailBuilder.files');
 
-    //Override juice to produce document.innerHTML (github is more up to date for this? Rubbish!)
-    // console.log(html);
-    // console.log(output);
+    // For each of the files
+    _.each(files, function(css, html) {
 
-    // Make directory for email, put file up in t'hur
-    fs.mkdir('email', function() {
-      fs.writeFile('email/test.html', output, function (err) {
-        if (err) throw err;
-        // console.log('It\'s saved!');
-      });
-    })
+      var doc = grunt.file.read(html), // HTML 
+          inline = grunt.file.read(css), // CSS to be inlined
+          output = juice(doc, inline);
 
-    //Application XMl Builder
-    var xmlApplications = builder.create('applications').att('type', 'array');
+      console.log(output);
 
-    // Need underscore for this shit, for loops are dumb
-    _.each(applications,function(app) {
-      var item = xmlApplications.ele('application');
-      item.ele('code', app);
-    })
+      // Make directory for email, put file up in t'hur
+      grunt.file.write('email.html', output);
 
-    // console.log(xmlApplications.end({pretty: true}));
 
-    //Build Xml to send off, Join with Application XMl
-    var xml = builder.create('test_set')
-      .importXMLBuilder(xmlApplications)
-      .ele('save_defaults', 'false').up()
-      .ele('use_defaults', 'false').up()
-      .ele('email_source')
-        .ele('body').dat(output).up()
-        .ele('subject', title)
-      .end({pretty: true});
+      // If a second Css file is provided this will be added in as a style tag.    
+      if(css[1]) 
+        var style = grunt.file.read(css[1], 'utf8');
 
-    //console.log(xml);
+      // Js dom - Might use this to sniff out the style pathways for css. Gets title atm
+      var document = jsdom.html(output),
+          window = document.createWindow(),
+          date = String(Math.round(new Date().getTime() / 1000)),
+          title = document.title+' '+date;
 
-    // Write the data xml file to curl, prolly can get rid of this somehow.
-    fs.writeFile('data.xml', xml, function (err) {
-      if (err) throw err;
-      console.log('XML saved!');
+      sendLitmus(output, title);
     });
 
-    // Curl to Litmus
-    var exec = require('child_process').exec,
-        command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+' -d @data.xml';
+    function sendLitmus(data, title) {
+      // Write the data xml file to curl, prolly can get rid of this somehow.
 
-    child = exec(command, function(error, stdout, stderr){
-      console.log('stdout: ' + stdout);
-      console.log('stderr: ' + stderr);
+      grunt.file.write('data.xml', xmlBuild(data, title))
 
-      if(error !== null) console.log('exec error: ' + error);
+      var username = options.litmus.username,
+          password = options.litmus.password,
+          accountUrl = options.litmus.url;
 
-    }); 
+      // Curl to Litmus
+      
+      var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+' -d @data.xml';
 
+      
+      grunt.helper('exec', command, function(error, stdout, stderr) {
+        console.log('stdout: ' + stdout);
+        console.log('stderr: ' + stderr);
+
+        if(error !== null) console.log('exec error: ' + error);
+      });
+    }
+
+    //Application XMl Builder
+    function xmlBuild(data, title) {
+      var xmlApplications = builder.create('applications').att('type', 'array');
+
+      // Need underscore for this shit, for loops are dumb
+      _.each(options.litmus.applications, function(app) {
+        var item = xmlApplications.ele('application');
+        item.ele('code', app);
+      })
+
+      //Build Xml to send off, Join with Application XMl
+      var xml = builder.create('test_set')
+        .importXMLBuilder(xmlApplications)
+        .ele('save_defaults', 'false').up()
+        .ele('use_defaults', 'false').up()
+        .ele('email_source')
+          .ele('body').dat(data).up()
+          .ele('subject', title)
+        .end({pretty: true});
+
+      //console.log(xml);
+      return xml;
+    }
 
   });
 
@@ -116,9 +111,17 @@ module.exports = function(grunt) {
     return 'EmailBuilder!!!';
   });
 
-    // Reading files like a boss
-  function read(file) {
-    return fs.readFileSync(file, 'utf8');
-  }
+
+  var cm = require('child_process').exec;
+
+  grunt.registerHelper('exec', function(command, callback) {
+    console.log(command)
+    cm(command, function(err, stdout, stderr) {
+
+      if (err || stderr) { callback(err || stderr, stdout); return; }
+
+      callback(null, stdout);
+    });
+  });
 
 };

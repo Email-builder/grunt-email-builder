@@ -36,11 +36,11 @@ module.exports = function(grunt) {
           password : 'password',
           url : 'https://yoursite.litmus.com/emails.xml',
           applications : ['gmail', 'hotmail']
-        }
+        },
+        basepath : 'example/'
       },
       files : {
-        'html/email.html' : ['css/inline.css', 'css/style.css'],
-        'html/email.html' : ['css/inline.css', 'css/style.css']
+        'example/html/email.html' : ['example/css/inline.css']
       }
     }
   });
