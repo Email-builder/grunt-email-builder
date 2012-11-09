@@ -1,5 +1,28 @@
-# Email Builder
+# grunt-EmailBuilder
 
-Pull from HTML / Css Files. Compile from Jade/less. Merge and sent to external testing service.
+Combine Html and Css into an email
 
--- TODO: Make into Grunt plugin.
+## Getting Started
+Install this grunt plugin next to your project's [grunt.js gruntfile][getting_started] with: `npm install grunt-EmailBuilder`
+
+Then add this line to your project's `grunt.js` gruntfile:
+
+```javascript
+grunt.loadNpmTasks('grunt-EmailBuilder');
+```
+
+[grunt]: http://gruntjs.com/
+[getting_started]: https://github.com/gruntjs/grunt/blob/master/docs/getting_started.md
+
+## Documentation
+_(Coming soon)_
+
+## Contributing
+In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt][grunt].
+
+## Release History
+_(Nothing yet)_
+
+## License
+Copyright (c) 2012 Steven Miller  
+Licensed under the MIT license.

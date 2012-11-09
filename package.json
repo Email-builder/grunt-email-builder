@@ -1,29 +1,45 @@
 {
-  "name": "Email-Builder",
-  "version": "0.0.1",
-  "description": "Build Emails and shiz",
-  "main": "index.js",
-  "dependencies": {
-    "jsdom": "~0.2.19",
-    "juice": "git://github.com/LearnBoost/juice.git",
-    "underscore": "~1.4.2",
-    "xmlbuilder": "~0.4.2"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "test"
+  "name": "grunt-email-builder",
+  "description": "Combine Html and Css into an email",
+  "version": "0.1.0",
+  "homepage": "https://github.com/yargalot/Email-Builder",
+  "author": {
+    "name": "Steven Miller",
+    "email": "steven.jmiller@gmail.com",
+    "url": "http://www.stevenjohnmiller.com.au"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/yargalot/Email-Builder.git"
   },
-  "keywords": [
-    "Email",
-    "Jade",
-    "Less",
-    "Inline"
+  "bugs": {
+    "url": "https://github.com/yargalot/Email-Builder/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/yargalot/Email-Builder/blob/master/LICENSE-MIT"
+    }
   ],
-  "author": "Steve Miller",
-  "license": "BSD",
-  "readmeFilename": "readme.md"
+  "main": "grunt.js",
+  "bin": "bin/grunt-email-builder",
+  "engines": {
+    "node": "*"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt": "~0.3.17"
+  },
+  "keywords": [
+    "gruntplugin"
+  ],
+  "dependencies": {
+    "juice": "git://github.com/LearnBoost/juice.git",
+    "grunt-lib-contrib": "~0.3.1",
+    "xmlbuilder": "~0.4.2",
+    "jsdom": "~0.2.19",
+    "underscore": "~1.4.2"
+  }
 }
