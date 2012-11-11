@@ -16,7 +16,6 @@ module.exports = function(grunt) {
   // ==========================================================================
 
   grunt.registerTask('EmailBuilder', 'Your task description goes here.', function() {
-    grunt.log.write(grunt.helper('EmailBuilder'));
 
     var juice = require('juice'),
         http = require('http'),
@@ -57,7 +56,7 @@ module.exports = function(grunt) {
           date = String(Math.round(new Date().getTime() / 1000)),
           title = document.title+' '+date;
 
-      //sendLitmus(output, title);
+      sendLitmus(output, title);
     });
 
     function sendLitmus(data, title) {
@@ -155,10 +154,5 @@ module.exports = function(grunt) {
   // ==========================================================================
   // HELPERS
   // ==========================================================================
-
-  grunt.registerHelper('EmailBuilder', function() {
-    return 'EmailBuilder!!!';
-  });
-
 
 };
