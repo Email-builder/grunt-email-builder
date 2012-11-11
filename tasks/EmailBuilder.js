@@ -66,6 +66,9 @@ module.exports = function(grunt) {
           password = options.litmus.password,
           accountUrl = options.litmus.url;
 
+      /*
+      Would love to get this working
+
       var httpOptions = {
         host : accountUrl,
         path: '/emails.xml',
@@ -79,9 +82,7 @@ module.exports = function(grunt) {
         }
       }
       
-      //console.log(httpOptions);
-      /*
-      Would love to get this working.
+      //console.log(httpOptions);.
 
       var req = http.request(httpOptions, function(res) {
         console.log('STATUS: ' + res.statusCode);
@@ -108,10 +109,14 @@ module.exports = function(grunt) {
       */
       var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+'/emails.xml -d @data.xml';
       
-      var cm = require('child_process').exec;
+      var cm = require('child_process').exec,
+          fs = require('fs');
 
       cm(command, function(err, stdout, stderr) {
         if (err || stderr) { console.log(err || stderr, stdout)}
+
+        // Delete XML After being curl'd
+        fs.unlinkSync('data.xml');
         done();
       });
       
