@@ -56,7 +56,8 @@ module.exports = function(grunt) {
           date = String(Math.round(new Date().getTime() / 1000)),
           title = document.title+' '+date;
 
-      sendLitmus(output, title);
+      if (options.litmus)
+        sendLitmus(output, title);
     });
 
     function sendLitmus(data, title) {
