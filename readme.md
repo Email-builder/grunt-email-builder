@@ -9,9 +9,9 @@ Read Less (one for inline css, one for an inline style tag) and Jade Files, comb
 This will then be curled  off to litmus. Eventually whatever email testing service  (Are there any others?) 
 
 *** TODO ***
-Read Jade Files
-Inline second less file into style tag using jsDom
-Replace curl exec function with actualy http thingy (wtf).
+Read Jade Files  
+Inline second less file into style tag using jsDom  
+Replace curl exec function with actualy http thingy (wtf).  
 Get it to read Multiple Files lines (Need to look into grunt more, sure Im doing this wrong.)
 
 ## Getting Started
