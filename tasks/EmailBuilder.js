@@ -23,6 +23,7 @@ module.exports = function(grunt) {
         builder = require('xmlbuilder'),
         util = require('util'),
         jsdom = require('jsdom'),
+        less = require('less'),
         _ = require('underscore');
 
     var helpers = require('grunt-lib-contrib').init(grunt),
@@ -34,14 +35,17 @@ module.exports = function(grunt) {
     _.each(files, function(css, html) {
 
       var doc = grunt.file.read(html), // HTML
-          inline = grunt.file.read(css), // CSS to be inlined
-          output = juice(doc, inline);
+          inline = grunt.file.read(css); // CSS to be inline;
 
-      //console.log(output);
+      less.render(inline, function (e, css) {
+         inline = css;
+      });
+
+      var output = juice(doc, inline);
+      console.log(output);
 
       // Make directory for email, put file up in t'hur
       grunt.file.write('email.html', output);
-
 
       // If a second Css file is provided this will be added in as a style tag.
       if(css[1])
@@ -53,7 +57,7 @@ module.exports = function(grunt) {
           date = String(Math.round(new Date().getTime() / 1000)),
           title = document.title+' '+date;
 
-      sendLitmus(output, title);
+      //sendLitmus(output, title);
     });
 
     function sendLitmus(data, title) {
