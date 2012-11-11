@@ -72,17 +72,21 @@ module.exports = function(grunt) {
         auth : username+':'+password,
         method: 'POST',
         headers : {
-          'Accept' :'application/xml\'' ,
-          'Content-Type': 'application/xml\'',
-          'Content-Length': xml.length
+          'Accept' :'application/xml' ,
+          'Content-Type': 'application/xml',
+          'Content-Length': Buffer.byteLength(xml, 'utf8'),
+          'Expect' : '100-continue'
         }
       }
-      console.log(options);
-      console.log(httpOptions);
+      
+      //console.log(httpOptions);
+      /*
+      Would love to get this working.
 
       var req = http.request(httpOptions, function(res) {
         console.log('STATUS: ' + res.statusCode);
         console.log('HEADERS: ' + JSON.stringify(res.headers));
+        //console.log(res);
         res.setEncoding('utf8');
         res.on('data', function (chunk) {
           console.log('BODY: ' + chunk);
@@ -95,19 +99,22 @@ module.exports = function(grunt) {
         done(false);
       });
 
-      req.write(xml);
-      req.end();
-
-      /*
-      var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+' -d @data.xml';
-
-      grunt.helper('exec', command, function(error, stdout, stderr) {
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
-
-        if(error !== null) console.log('exec error: ' + error);
-      });
+    
+      //console.log(httpOptions);
+      //console.log(xml.replace(/\r?\n/g, ''))
+      //req.write(xml);
+      //req.end();
+      
       */
+      var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+'/emails.xml -d @data.xml';
+      
+      var cm = require('child_process').exec;
+
+      cm(command, function(err, stdout, stderr) {
+        if (err || stderr) { console.log(err || stderr, stdout)}
+        done();
+      });
+      
     }
 
     //Application XMl Builder
@@ -144,16 +151,5 @@ module.exports = function(grunt) {
     return 'EmailBuilder!!!';
   });
 
-  var cm = require('child_process').exec;
-  grunt.registerHelper('exec', function(command, callback) {
-
-    console.log(command);
-    cm(command, function(err, stdout, stderr) {
-
-      if (err || stderr) { callback(err || stderr, stdout); return; }
-
-      callback(null, stdout);
-    });
-  });
 
 };
