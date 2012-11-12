@@ -41,8 +41,8 @@ module.exports = function(grunt) {
           basepath : 'example/emails/'
         },
         files : {
-          'example/html/email.html' : ['example/less/inline.less'],
-          'example/html/derp.html' : ['example/less/inline.less']
+          'example/jade/email.jade' : ['example/less/inline.less', 'example/less/style.less'],
+          'example/html/derp.html' : 'example/css/inline.css'
         }
       }
     }
