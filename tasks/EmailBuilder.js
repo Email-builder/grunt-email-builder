@@ -48,12 +48,15 @@ module.exports = function(grunt) {
       var output = grunt.file.read(html), // HTML
           inline = grunt.file.read(inline_css); // CSS to be inline;
 
-      less.render(inline, function (e, css) {
-         inline = css;
-      });
+      var basename = path.basename(html,  '.html');
 
-      var basename = path.basename(html,  '.html')
+      if ( path.extname(inline_css) === '.less') 
+        less.render(inline, function (e, css) {
+           inline = css;
+           console.log('less')
+        });
 
+      // HEYO sup jade
       if ( path.extname(html) === '.jade')  {
         var fn = jade.compile(output),
             myArry = ['moo', 'boo', 'roo'],
@@ -66,11 +69,9 @@ module.exports = function(grunt) {
       }
 
       output = juice(output, inline);
-      //console.log(output);
 
       if (!basepath) basepath = 'emails/';
 
-      
       grunt.file.write(basepath + basename+'.html', output);
 
       // If a second Css file is provided this will be added in as a style tag.
