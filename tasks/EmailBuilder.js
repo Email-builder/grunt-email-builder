@@ -22,6 +22,7 @@ module.exports = function(grunt) {
       builder = require('xmlbuilder'),
       jsdom = require('jsdom'),
       less = require('less'),
+      jade = require('jade'),
       path = require('path'),
       _ = grunt.utils._,
       helpers = require('grunt-lib-contrib').init(grunt);
@@ -51,13 +52,26 @@ module.exports = function(grunt) {
          inline = css;
       });
 
+      var basename = path.basename(html,  '.html')
+
+      if ( path.extname(html) === '.jade')  {
+        var fn = jade.compile(output),
+            myArry = ['moo', 'boo', 'roo'],
+            myObj = { foo: 'bar', woo:'loo' };
+
+        output = fn({ myArry: myArry, myObj: myObj });
+        console.log(output);
+
+        basename = path.basename(html,  '.jade')     
+      }
+
       output = juice(output, inline);
       //console.log(output);
 
       if (!basepath) basepath = 'emails/';
 
-      var basename = path.basename(html)
-      grunt.file.write(basepath + basename, output);
+      
+      grunt.file.write(basepath + basename+'.html', output);
 
       // If a second Css file is provided this will be added in as a style tag.
       //   if(css[1])
