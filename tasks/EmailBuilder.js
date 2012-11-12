@@ -39,50 +39,61 @@ module.exports = function(grunt) {
     this.files = helpers.normalizeMultiTaskFiles(this.data, this.target); 
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
-      var inline_css = file.src,
-          html = file.dest;
-
-      // console.log(inline_css);
-      // console.log(html);
-
-      var output = grunt.file.read(html), // HTML
-          inline = grunt.file.read(inline_css); // CSS to be inline;
+      var css = file.src,
+          html = file.dest,
+          output = grunt.file.read(html);
 
       var basename = path.basename(html,  '.html');
 
-      if ( path.extname(inline_css) === '.less') 
-        less.render(inline, function (e, css) {
-           inline = css;
-           console.log('less')
-        });
+      var inline_css ='', 
+          style_css = '';
+          
+      if (_.isArray(css)) {
+        inline_css = renderCss(css[0]);
+        style_css = renderCss(css[1]);
+      } else {
+        inline_css = renderCss(css);
+      }
 
       // HEYO sup jade
       if ( path.extname(html) === '.jade')  {
-        var fn = jade.compile(output),
+
+        var jadeOptions = {
+          pretty : true
+        };
+
+        var fn = jade.compile(output, jadeOptions),
             myArry = ['moo', 'boo', 'roo'],
             myObj = { foo: 'bar', woo:'loo' };
 
         output = fn({ myArry: myArry, myObj: myObj });
-        console.log(output);
-
         basename = path.basename(html,  '.jade')     
       }
 
-      output = juice(output, inline);
-
-      if (!basepath) basepath = 'emails/';
-
-      grunt.file.write(basepath + basename+'.html', output);
-
-      // If a second Css file is provided this will be added in as a style tag.
-      //   if(css[1])
-      //     var style = grunt.file.read(css[1], 'utf8');
+      output = juice(output, inline_css);
 
       // Js dom - Might use this to sniff out the style pathways for css. Gets title atm
       var document = jsdom.html(output),
           window = document.createWindow(),
           date = String(Math.round(new Date().getTime() / 1000)),
           title = document.title+' '+date;
+
+      // If a second Css file is provided this will be added in as a style tag.
+      if (style_css) {
+        var style_tag = document.createElement('style');
+        var head = document.getElementsByTagName('head')[0];
+
+        style_tag.type = 'text/css';
+        style_tag.innerHTML = style_css;
+
+        head.appendChild(style_tag);
+
+        output = document.innerHTML;
+      }
+
+      if (!basepath) basepath = 'emails/';
+
+      grunt.file.write(basepath + basename+'.html', output);
 
       if (options.litmus) {
 
@@ -108,10 +119,23 @@ module.exports = function(grunt) {
       done()
     });
 
+    function renderCss(input) {
+
+      var data = grunt.file.read(input)
+
+      if ( path.extname(input) === '.less') 
+        less.render(data, function (e, css) {
+           data = css;
+        });
+
+      return data;
+    }
+
     function sendLitmus(data, title) {
       // Write the data xml file to curl, prolly can get rid of this somehow.
 
-      var xml = xmlBuild(data, title);
+      var xml = xmlBuild(data, title);  
+      console.log(xml);
 
       grunt.file.write('data.xml', xml);
 
