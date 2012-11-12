@@ -135,7 +135,6 @@ module.exports = function(grunt) {
       // Write the data xml file to curl, prolly can get rid of this somehow.
 
       var xml = xmlBuild(data, title);  
-      console.log(xml);
 
       grunt.file.write('data.xml', xml);
 
@@ -168,7 +167,6 @@ module.exports = function(grunt) {
           .ele('subject', title)
         .end({pretty: true});
 
-      //console.log(xml);
       return xml;
     }
 
