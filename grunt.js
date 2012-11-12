@@ -30,17 +30,20 @@ module.exports = function(grunt) {
       globals: {}
     },
     EmailBuilder: {
-      options: {
-        litmus : {
-          username : 'username',
-          password : 'password',
-          url : 'yoursite.litmus.com',
-          applications : ['gmail', 'hotmail']
+      dev :{
+        options: {
+          litmus : {
+            username : 'username',
+            password : 'password',
+            url : 'https://yoursite.litmus.com',
+            applications : ['gmail', 'hotmail']
+          },
+          basepath : 'example/emails/'
         },
-        basepath : 'example/'
-      },
-      files : {
-        'example/html/email.html' : ['example/css/inline.css']
+        files : {
+          'example/html/email.html' : ['example/less/inline.less'],
+          'example/html/derp.html' : ['example/less/inline.less']
+        }
       }
     }
   });
