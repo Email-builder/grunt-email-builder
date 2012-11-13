@@ -27,8 +27,6 @@ module.exports = function(grunt) {
       _ = grunt.utils._,
       helpers = require('grunt-lib-contrib').init(grunt);
 
-
-
   grunt.registerMultiTask(task_name, task_description, function() {
 
     var options = helpers.options(this),
