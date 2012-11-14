@@ -55,8 +55,8 @@ module.exports = function(grunt) {
 
       // HEYO sup jade
       if ( path.extname(html) === '.jade')  {
-
         var jadeOptions = {
+          filename: html,
           pretty : true
         };
 
