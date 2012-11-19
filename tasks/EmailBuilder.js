@@ -20,7 +20,6 @@ module.exports = function(grunt) {
       juice = require('juice'),
       http = require('http'),
       builder = require('xmlbuilder'),
-      jsdom = require('jsdom'),
       less = require('less'),
       jade = require('jade'),
       path = require('path'),
@@ -81,7 +80,7 @@ module.exports = function(grunt) {
       //If a second Css file is provided this will be added in as a style tag.
       if (style_css) {
         var style_tag = $('<style/>').attr('type', 'text/css').html(style_css);
-        
+
         $('head').append(style_tag);
         output = $.html();
       }
