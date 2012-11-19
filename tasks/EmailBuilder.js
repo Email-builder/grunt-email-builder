@@ -24,6 +24,7 @@ module.exports = function(grunt) {
       less = require('less'),
       jade = require('jade'),
       path = require('path'),
+      cheerio = require('cheerio'),
       _ = grunt.utils._,
       helpers = require('grunt-lib-contrib').init(grunt);
 
@@ -71,22 +72,18 @@ module.exports = function(grunt) {
       output = juice(output, inline_css);
 
       // Js dom - Might use this to sniff out the style pathways for css. Gets title atm
-      var document = jsdom.html(output),
-          window = document.createWindow(),
+      var $ = cheerio.load(output),
           date = String(Math.round(new Date().getTime() / 1000)),
-          title = document.title+' '+date;
+          title = $('title').text();
 
-      // If a second Css file is provided this will be added in as a style tag.
+      console.log(title);
+
+      //If a second Css file is provided this will be added in as a style tag.
       if (style_css) {
-        var style_tag = document.createElement('style');
-        var head = document.getElementsByTagName('head')[0];
-
-        style_tag.type = 'text/css';
-        style_tag.innerHTML = style_css;
-
-        head.appendChild(style_tag);
-
-        output = document.innerHTML;
+        var style_tag = $('<style/>').attr('type', 'text/css').html(style_css);
+        
+        $('head').append(style_tag);
+        output = $.html();
       }
 
       if (!basepath) basepath = 'emails/';
