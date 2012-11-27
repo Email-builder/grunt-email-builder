@@ -37,57 +37,52 @@ module.exports = function(grunt) {
     this.files = helpers.normalizeMultiTaskFiles(this.data, this.target); 
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
-      var css = file.src,
-          html = file.dest,
-          output = grunt.file.read(html);
 
-      var basename = path.basename(html,  '.html');
+      var data = grunt.file.read(file.src);
 
-      var inline_css ='', 
-          style_css = '';
+      var basename = path.basename(file.src,  '.html'),
+          basepath = process.cwd();
           
-      if (_.isArray(css)) {
-        inline_css = renderCss(css[0]);
-        style_css = renderCss(css[1]);
-      } else {
-        inline_css = renderCss(css);
-      }
-
       // HEYO sup jade
-      if ( path.extname(html) === '.jade')  {
+      if ( path.extname(file.src) === '.jade')  {
         var jadeOptions = {
-          filename: html,
+          filename: file.src,
           pretty : true
         };
 
-        var fn = jade.compile(output, jadeOptions),
+        var fn = jade.compile(data, jadeOptions),
             myArry = ['moo', 'boo', 'roo'],
             myObj = { foo: 'bar', woo:'loo' };
 
-        output = fn({ myArry: myArry, myObj: myObj });
-        basename = path.basename(html,  '.jade')     
+        data = fn({ myArry: myArry, myObj: myObj });    
       }
 
-      output = juice(output, inline_css);
-
-      // Js dom - Might use this to sniff out the style pathways for css. Gets title atm
-      var $ = cheerio.load(output),
+      var $ = cheerio.load(data),
           date = String(Math.round(new Date().getTime() / 1000)),
           title = $('title').text();
 
-      console.log(title);
+      // Set to target file path to get css
+      grunt.file.setBase(path.dirname(file.src))
 
-      //If a second Css file is provided this will be added in as a style tag.
-      if (style_css) {
-        var style_tag = $('<style/>').attr('type', 'text/css').html(style_css);
+      var inlineCss;
 
-        $('head').append(style_tag);
-        output = $.html();
-      }
+      $('link').each(function (i, elem) {
+        var target = $(this).attr('href');
 
-      if (!basepath) basepath = 'emails/';
+        if ($(this).attr('data-placement') === 'style-tag') {
+          $(this).replaceWith('<style>'+renderCss(target)+'</style>')
 
-      grunt.file.write(basepath + basename+'.html', output);
+        } else {
+          $(this).remove()          
+          inlineCss = renderCss(target);
+        }
+      });
+
+      output = juice($.html(), inlineCss);
+
+      //Reset to grunt directory
+      grunt.file.setBase(basepath)
+      grunt.file.write(file.dest, output);
 
       if (options.litmus) {
 
@@ -115,14 +110,25 @@ module.exports = function(grunt) {
 
     function renderCss(input) {
 
-      var data = grunt.file.read(input)
+      var data = grunt.file.read(input);
 
-      if ( path.extname(input) === '.less') 
-        less.render(data, function (e, css) {
-           data = css;
+      if ( path.extname(input) === '.less') {        
+        var parser = new(less.Parser)({
+          paths: [path.dirname(input)], // Specify search paths for @import directives
+          filename: path.basename(input) // Specify a filename, for better error messages
         });
 
+        parser.parse(data, function (err, tree) {
+          if (err) { console.log(err) }
+
+          data = tree.toCSS({ compress: true }); // Minify CSS output
+          console.log(data);
+        });
+
+      }
+
       return data;
+      
     }
 
     function sendLitmus(data, title) {

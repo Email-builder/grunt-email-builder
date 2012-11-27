@@ -1,4 +1,7 @@
 
+@import "variables.less";
+
+/* DERP */
 /* Outlook 07, 10 Padding issue fix
 Bring inline: No.*/
 table td {border-collapse: collapse;}
@@ -13,7 +16,7 @@ DO NOT BRING INLINE
   /* Part one of controlling phone number linking for mobile. */
   a[href^="tel"], a[href^="sms"] {
         text-decoration: none;
-        color: blue; /* or whatever your want */
+        color: @textColor; /* or whatever your want */
         pointer-events: none;
         cursor: default;
       }
@@ -34,7 +37,7 @@ DO NOT BRING INLINE
   /* repeating for the ipad */
   a[href^="tel"], a[href^="sms"] {
         text-decoration: none;
-        color: blue; /* or whatever your want */
+        color:@textColor; /* or whatever your want */
         pointer-events: none;
         cursor: default;
       }

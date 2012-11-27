@@ -39,11 +39,10 @@ module.exports = function(grunt) {
             //https://yoursite.litmus.com/emails/clients.xml
             applications : ['gmailnew', 'hotmail', 'outlookcom', 'ol2000', 'ol2002', 'ol2003', 'ol2007', 'ol2010','ol2011', 'ol2013', 'appmail6','iphone3', 'iphone4', 'ipad3']
           },
-          basepath : 'example/emails/'
         },
-        files : {
-          'example/jade/email.jade' : ['example/less/inline.less', 'example/less/style.less'],
-          'example/html/derp.html' : 'example/css/inline.css'
+        files : { 
+          'example/email/email.html' : 'example/jade/email.jade',
+          'example/email/derp.html' : 'example/html/derp.html'
         }
       }
     }
