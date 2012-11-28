@@ -38,17 +38,16 @@ module.exports = function(grunt) {
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
 
-      var data = grunt.file.read(file.src);
-
-      var basename = path.basename(file.src,  '.html'),
+      var data = grunt.file.read(file.src),
+          basename = path.basename(file.src,  '.html'),
           basepath = process.cwd();
-          
+      
       // HEYO sup jade
       if ( path.extname(file.src) === '.jade')  {
         var jadeOptions = {
-          filename: file.src,
-          pretty : true
-        };
+              filename: file.src,
+              pretty : true
+            };
 
         var fn = jade.compile(data, jadeOptions),
             myArry = ['moo', 'boo', 'roo'],
@@ -59,76 +58,97 @@ module.exports = function(grunt) {
 
       var $ = cheerio.load(data),
           date = String(Math.round(new Date().getTime() / 1000)),
-          title = $('title').text();
+          title = $('title').text() + date;
+
+
+      var srcFiles = [],
+          inlineCss;
+
+      $('link').each(function (i, elem) {
+        var target = $(this).attr('href'),
+            map = {
+              file: target,
+              inline : $(this).attr('data-placement') === 'style-tag' ? false : true
+            }
+
+        srcFiles.push(map);
+        $(this).remove()
+      });
 
       // Set to target file path to get css
       grunt.file.setBase(path.dirname(file.src))
 
-      var inlineCss;
+      // Less Compilation
+      grunt.util.async.forEachSeries(srcFiles, function(srcFile, nextFile) {
+        var _that = $(this);
 
-      $('link').each(function (i, elem) {
-        var target = $(this).attr('href');
-
-        if ($(this).attr('data-placement') === 'style-tag') {
-          $(this).replaceWith('<style>'+renderCss(target)+'</style>')
-
+        if (srcFile.inline) {
+          renderCss(srcFile.file, function(data) {
+            inlineCss = data;
+            nextFile()
+          });
         } else {
-          $(this).remove()          
-          inlineCss = renderCss(target);
+
+          renderCss(srcFile.file, function(data) {
+            $('head').append('<style>'+data+'</style>')
+            nextFile()
+          });
+        }
+      }, function(err) {
+
+        var output = juice($.html(), inlineCss);
+
+        grunt.log.writeln('Writing...'.cyan)
+        console.log(output)
+
+        //Reset to grunt directory
+        grunt.file.setBase(basepath)
+        grunt.file.write(file.dest, output)
+        grunt.log.writeln('File ' + file.dest.cyan + ' created.')
+
+        if (options.litmus) {
+
+          var cm = require('child_process').exec,
+              fs = require('fs');
+
+          var command = sendLitmus(output, title);
+
+          console.log(command)
+          cm(command, function(err, stdout, stderr) {
+            if (err || stderr) { console.log(err || stderr, stdout)}
+
+            // Delete XML After being curl'd
+            fs.unlinkSync('data.xml');
+            next();
+          });
+        
+        } else {
+          next()
         }
       });
-
-      output = juice($.html(), inlineCss);
-
-      //Reset to grunt directory
-      grunt.file.setBase(basepath)
-      grunt.file.write(file.dest, output);
-
-      if (options.litmus) {
-
-        var cm = require('child_process').exec,
-            fs = require('fs');
-
-        var command = sendLitmus(output, title);
-
-        console.log(command)
-        cm(command, function(err, stdout, stderr) {
-          if (err || stderr) { console.log(err || stderr, stdout)}
-
-          // Delete XML After being curl'd
-          fs.unlinkSync('data.xml');
-          next();
-        });
-      
-      } else {
-        next(); 
-      }
    
     }, function() {
       done()
     });
 
-    function renderCss(input) {
+    function renderCss(input, callback) {
 
       var data = grunt.file.read(input);
 
-      if ( path.extname(input) === '.less') {        
+      if ( path.extname(input) === '.less') {       
         var parser = new(less.Parser)({
           paths: [path.dirname(input)], // Specify search paths for @import directives
           filename: path.basename(input) // Specify a filename, for better error messages
         });
 
         parser.parse(data, function (err, tree) {
-          if (err) { console.log(err) }
-
-          data = tree.toCSS({ compress: true }); // Minify CSS output
-          console.log(data);
+          if (err) { return console.error(err) }
+          data = tree.toCSS(); // Minify CSS output
+          callback(data);
         });
-
-      }
-
-      return data;
-      
+      } else {
+        callback(data);
+      }      
     }
 
     function sendLitmus(data, title) {
