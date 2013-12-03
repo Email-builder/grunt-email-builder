@@ -1,4 +1,4 @@
-# grunt-EmailBuilder
+# grunt-email-builder
 
 Combine Html and Css into an email
 
@@ -7,12 +7,12 @@ You can then send them off to litmus for testing.
 
 
 ## Getting Started
-Install this grunt plugin next to your project's [grunt.js gruntfile][getting_started] with: `npm install grunt-EmailBuilder`
+Install this grunt plugin next to your project's [grunt.js gruntfile][getting_started] with: `npm install grunt-email-builder`
 
 Then add this line to your project's `grunt.js` gruntfile:
 
 ```javascript
-grunt.loadNpmTasks('grunt-EmailBuilder');
+grunt.loadNpmTasks('grunt-email-builder');
 ```
 
 [grunt]: http://gruntjs.com/
@@ -21,7 +21,7 @@ grunt.loadNpmTasks('grunt-EmailBuilder');
 ## Documentation
 
 ```javascript
- EmailBuilder: {
+ emailBuilder: {
   test :{
     options: {
       litmus : {

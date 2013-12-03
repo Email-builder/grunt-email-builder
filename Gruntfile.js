@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   var testFiles = {
     'example/test/jadeTest.html' : 'example/jade/jadeTest.jade',
     'example/test/htmlTest.html' : 'example/html/htmlTest.html'
-  };
+  }
 
   // Project configuration.
   grunt.initConfig({
@@ -34,7 +34,7 @@ module.exports = function(grunt) {
       },
       globals: {}
     },
-    EmailBuilder: {
+    emailBuilder: {
       test :{
         options: {
           litmus : {
@@ -57,7 +57,7 @@ module.exports = function(grunt) {
   grunt.loadTasks('tasks');
 
   // Default task.
-  grunt.registerTask('default', 'EmailBuilder:produce');
-  grunt.registerTask('test', 'EmailBuilder:test');
+  grunt.registerTask('default', 'emailBuilder:produce');
+  grunt.registerTask('test', 'emailBuilder:test');
 
 };

@@ -15,7 +15,7 @@ module.exports = function(grunt) {
   // TASKS
   // ==========================================================================
 
-  var task_name = 'EmailBuilder',
+  var task_name = 'emailBuilder',
       task_description = 'Compile Files',
       juice = require('juice'),
       http = require('http'),
@@ -32,7 +32,6 @@ module.exports = function(grunt) {
     console.log(this.files);
 
     var options = this.options(),
-        files = this.data.files,
         basepath = options.basepath,
         done = this.async();
 
