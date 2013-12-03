@@ -25,7 +25,25 @@ grunt.loadNpmTasks('grunt-EmailBuilder');
 
 ## Documentation
 
-
+```javascript
+ EmailBuilder: {
+  test :{
+    options: {
+      litmus : {
+        username : 'username',
+        password : 'password',
+        url : 'https://yoursite.litmus.com',
+        //https://yoursite.litmus.com/emails/clients.xml
+        applications : ['gmailnew', 'hotmail', 'outlookcom', 'ol2000', 'ol2002', 'ol2003', 'ol2007', 'ol2010','ol2011', 'ol2013', 'appmail6','iphone3', 'iphone4', 'ipad3']
+      },
+    },
+    files : {
+      'example/test/jadeTest.html' : 'example/jade/jadeTest.jade',
+      'example/test/htmlTest.html' : 'example/html/htmlTest.html'
+    }
+  }
+}
+'''
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt][grunt].
 
