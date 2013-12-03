@@ -1,5 +1,10 @@
 module.exports = function(grunt) {
 
+  var testFiles = {
+    'example/test/jadeTest.html' : 'example/jade/jadeTest.jade',
+    'example/test/htmlTest.html' : 'example/html/htmlTest.html'
+  };
+
   // Project configuration.
   grunt.initConfig({
     test: {
@@ -30,7 +35,7 @@ module.exports = function(grunt) {
       globals: {}
     },
     EmailBuilder: {
-      dev :{
+      test :{
         options: {
           litmus : {
             username : 'username',
@@ -40,10 +45,10 @@ module.exports = function(grunt) {
             applications : ['gmailnew', 'hotmail', 'outlookcom', 'ol2000', 'ol2002', 'ol2003', 'ol2007', 'ol2010','ol2011', 'ol2013', 'appmail6','iphone3', 'iphone4', 'ipad3']
           },
         },
-        files : { 
-          'example/email/email.html' : 'example/jade/email.jade',
-          'example/email/derp.html' : 'example/html/derp.html'
-        }
+        files : testFiles
+      },
+      produce :{
+        files : testFiles
       }
     }
   });
@@ -52,6 +57,7 @@ module.exports = function(grunt) {
   grunt.loadTasks('tasks');
 
   // Default task.
-  grunt.registerTask('default', 'EmailBuilder');
+  grunt.registerTask('default', 'EmailBuilder:produce');
+  grunt.registerTask('test', 'EmailBuilder:test');
 
 };

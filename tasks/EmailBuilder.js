@@ -24,26 +24,27 @@ module.exports = function(grunt) {
       jade = require('jade'),
       path = require('path'),
       cheerio = require('cheerio'),
-      _ = grunt.utils._,
+      _ = grunt.util._,
       helpers = require('grunt-lib-contrib').init(grunt);
 
   grunt.registerMultiTask(task_name, task_description, function() {
 
-    var options = helpers.options(this),
+    console.log(this.files);
+
+    var options = this.options(),
         files = this.data.files,
         basepath = options.basepath,
         done = this.async();
-    
-    this.files = helpers.normalizeMultiTaskFiles(this.data, this.target); 
+
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
 
       var data = grunt.file.read(file.src),
           basename = path.basename(file.src,  '.html'),
           basepath = process.cwd();
-      
+
       // HEYO sup jade
-      if ( path.extname(file.src) === '.jade')  {
+      if ( path.extname(file.src) === '.jade') {
         var jadeOptions = {
               filename: file.src,
               pretty : true
@@ -53,7 +54,7 @@ module.exports = function(grunt) {
             myArry = ['moo', 'boo', 'roo'],
             myObj = { foo: 'bar', woo:'loo' };
 
-        data = fn({ myArry: myArry, myObj: myObj });    
+        data = fn({ myArry: myArry, myObj: myObj });
       }
 
       var $ = cheerio.load(data),
@@ -69,14 +70,14 @@ module.exports = function(grunt) {
             map = {
               file: target,
               inline : $(this).attr('data-placement') === 'style-tag' ? false : true
-            }
+            };
 
         srcFiles.push(map);
-        $(this).remove()
+        $(this).remove();
       });
 
       // Set to target file path to get css
-      grunt.file.setBase(path.dirname(file.src))
+      grunt.file.setBase(path.dirname(file.src));
 
       // Less Compilation
       grunt.util.async.forEachSeries(srcFiles, function(srcFile, nextFile) {
@@ -85,26 +86,27 @@ module.exports = function(grunt) {
         if (srcFile.inline) {
           renderCss(srcFile.file, function(data) {
             inlineCss = data;
-            nextFile()
+            nextFile();
           });
         } else {
 
           renderCss(srcFile.file, function(data) {
-            $('head').append('<style>'+data+'</style>')
-            nextFile()
+            $('head').append('<style>'+data+'</style>');
+            nextFile();
           });
         }
       }, function(err) {
 
         var output = juice($.html(), inlineCss);
 
-        grunt.log.writeln('Writing...'.cyan)
-        console.log(output)
+        grunt.log.writeln('Writing...'.cyan);
+        console.log(output);
 
         //Reset to grunt directory
-        grunt.file.setBase(basepath)
-        grunt.file.write(file.dest, output)
-        grunt.log.writeln('File ' + file.dest.cyan + ' created.')
+        grunt.file.setBase(basepath);
+        grunt.file.write(file.dest, output);
+
+        grunt.log.writeln('File ' + file.dest.cyan + ' created.');
 
         if (options.litmus) {
 
@@ -113,48 +115,52 @@ module.exports = function(grunt) {
 
           var command = sendLitmus(output, title);
 
-          console.log(command)
+          console.log(command);
+
           cm(command, function(err, stdout, stderr) {
-            if (err || stderr) { console.log(err || stderr, stdout)}
+            if (err || stderr)
+              console.log(err || stderr, stdout);
 
             // Delete XML After being curl'd
             fs.unlinkSync('data.xml');
             next();
           });
-        
+
         } else {
-          next()
+          next();
         }
       });
-   
+
     }, function() {
-      done()
+      done();
     });
 
     function renderCss(input, callback) {
 
       var data = grunt.file.read(input);
 
-      if ( path.extname(input) === '.less') {       
+      if ( path.extname(input) === '.less') {
         var parser = new(less.Parser)({
           paths: [path.dirname(input)], // Specify search paths for @import directives
           filename: path.basename(input) // Specify a filename, for better error messages
         });
 
         parser.parse(data, function (err, tree) {
-          if (err) { return console.error(err) }
+          if (err)
+            return console.error(err);
+
           data = tree.toCSS(); // Minify CSS output
           callback(data);
         });
       } else {
         callback(data);
-      }      
+      }
     }
 
     function sendLitmus(data, title) {
       // Write the data xml file to curl, prolly can get rid of this somehow.
 
-      var xml = xmlBuild(data, title);  
+      var xml = xmlBuild(data, title);
 
       grunt.file.write('data.xml', xml);
 
@@ -164,7 +170,7 @@ module.exports = function(grunt) {
 
       var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+'/emails.xml -d @data.xml';
 
-      return command;    
+      return command;
     }
 
     //Application XMl Builder
@@ -175,7 +181,7 @@ module.exports = function(grunt) {
       _.each(options.litmus.applications, function(app) {
         var item = xmlApplications.ele('application');
         item.ele('code', app);
-      })
+      });
 
       //Build Xml to send off, Join with Application XMl
       var xml = builder.create('test_set')
@@ -191,10 +197,5 @@ module.exports = function(grunt) {
     }
 
   });
-
-  // ==========================================================================
-  // HELPERS
-  // ==========================================================================
-
 
 };
