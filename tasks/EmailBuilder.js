@@ -37,9 +37,9 @@ module.exports = function(grunt) {
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
 
-      var data = grunt.file.read(file.src),
-          basename = path.basename(file.src,  '.html'),
-          basepath = process.cwd();
+      var data = grunt.file.read(file.src);
+      var basename = path.basename(file.src,  '.html');
+      var basepath = process.cwd();
 
       // HEYO sup jade
       if ( path.extname(file.src) === '.jade') {
@@ -48,20 +48,19 @@ module.exports = function(grunt) {
               pretty : true
             };
 
-        var fn = jade.compile(data, jadeOptions),
-            myArry = ['moo', 'boo', 'roo'],
-            myObj = { foo: 'bar', woo:'loo' };
+
+        var fn = jade.compile(data, jadeOptions);
+        var myArry = ['moo', 'boo', 'roo'];
+        var myObj = { foo: 'bar', woo:'loo' };
 
         data = fn({ myArry: myArry, myObj: myObj });
       }
 
-      var $ = cheerio.load(data),
-          date = String(Math.round(new Date().getTime() / 1000)),
-          title = $('title').text() + date;
-
-
-      var srcFiles = [],
-          inlineCss;
+      var $ = cheerio.load(data);
+      var date = String(Math.round(new Date().getTime() / 1000));
+      var title = $('title').text() + date;
+      var srcFiles = [];
+      var inlineCss;
 
       $('link').each(function (i, elem) {
         var target = $(this).attr('href'),
@@ -98,7 +97,6 @@ module.exports = function(grunt) {
         var output = juice($.html(), inlineCss);
 
         grunt.log.writeln('Writing...'.cyan);
-        console.log(output);
 
         //Reset to grunt directory
         grunt.file.setBase(basepath);
@@ -175,7 +173,6 @@ module.exports = function(grunt) {
     function xmlBuild(data, title) {
       var xmlApplications = builder.create('applications').att('type', 'array');
 
-      // Need underscore for this shit, for loops are dumb
       _.each(options.litmus.applications, function(app) {
         var item = xmlApplications.ele('application');
         item.ele('code', app);

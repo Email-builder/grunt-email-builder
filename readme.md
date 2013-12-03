@@ -13,10 +13,10 @@ grunt.loadNpmTasks('grunt-email-builder');
 ```
 
 [grunt]: http://gruntjs.com/
-[getting_started]: https://github.com/gruntjs/grunt/blob/master/docs/getting_started.md
+[getting_started]: http://gruntjs.com/getting-started
 
 ## Documentation
-
+Place this in your grunt file.
 ```javascript
  emailBuilder: {
   test :{
@@ -37,7 +37,7 @@ grunt.loadNpmTasks('grunt-email-builder');
 }
 ```
 
-In your html files you can either inline the css on elements or inline css into styletags in the file by using data-placement on the link tag
+In your html files you can either inline the css on elements or inline css into styletags in the file by using data-placement on the link tag.
 ```html
   <link rel="stylesheet" data-placement="inline"     href="../css/inline.css" type="text/css" />
   <link rel="stylesheet" data-placement="style-tag"  href="../css/style.css"  type="text/css" />
