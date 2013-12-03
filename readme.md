@@ -1,6 +1,6 @@
 # grunt-email-builder
 
-Combine Inline Css into HTML or inline css into styletags for emails. You can then send files to litmus for testing.
+Inline css into HTML or inline css into styletags for emails. You can then send files to Litmus for testing.
 
 
 ## Getting Started
