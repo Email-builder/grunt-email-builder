@@ -1,9 +1,6 @@
 # grunt-email-builder
 
-Combine Html and Css into an email
-
-This reads Less/Css (one for inline css, one for an inline style tag) and Jade Files then combines  them into a Single Email html file.
-You can then send them off to litmus for testing.
+Combine Inline Css into HTML or inline css into styletags for emails. You can then send files to litmus for testing.
 
 
 ## Getting Started
@@ -38,6 +35,12 @@ grunt.loadNpmTasks('grunt-email-builder');
     }
   }
 }
+```
+
+In your html files you can either inline the css on elements or inline css into styletags in the file by using data-placement on the link tag
+```html
+  <link rel="stylesheet" data-placement="inline"     href="../css/inline.css" type="text/css" />
+  <link rel="stylesheet" data-placement="style-tag"  href="../css/style.css"  type="text/css" />
 ```
 
 ## Contributing

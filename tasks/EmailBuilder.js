@@ -35,7 +35,6 @@ module.exports = function(grunt) {
         basepath = options.basepath,
         done = this.async();
 
-
     grunt.util.async.forEachSeries(this.files, function(file, next) {
 
       var data = grunt.file.read(file.src),
