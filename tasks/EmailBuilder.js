@@ -15,61 +15,54 @@ module.exports = function(grunt) {
   // TASKS
   // ==========================================================================
 
-  var task_name = 'emailBuilder',
-      task_description = 'Compile Files',
-      juice = require('juice'),
-      http = require('http'),
-      builder = require('xmlbuilder'),
-      less = require('less'),
-      jade = require('jade'),
-      path = require('path'),
-      cheerio = require('cheerio'),
-      _ = grunt.util._,
-      helpers = require('grunt-lib-contrib').init(grunt);
+  // Task Desciption
+  var task_name         = 'emailBuilder';
+  var task_description  = 'Compile Files';
+
+
+  // Required modules
+  var juice     = require('juice')
+  var http      = require('http');
+  var builder   = require('xmlbuilder');
+  var less      = require('less');
+  var jade      = require('jade');
+  var path      = require('path');
+  var cheerio   = require('cheerio');
+  var  _        = grunt.util._;
+  var helpers   = require('grunt-lib-contrib').init(grunt);
 
   grunt.registerMultiTask(task_name, task_description, function() {
 
-    console.log(this.files);
-
-    var options = this.options(),
-        basepath = options.basepath,
-        done = this.async();
+    var options   = this.options();
+    var basepath  = options.basepath;
+    var done      = this.async();
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
 
-      var data = grunt.file.read(file.src);
-      var basename = path.basename(file.src,  '.html');
-      var basepath = process.cwd();
+      var data      = grunt.file.read(file.src);
+      var basename  = path.basename(file.src,  '.html');
+      var basepath  = process.cwd();
 
-      // HEYO sup jade
+       // jade compile
       if ( path.extname(file.src) === '.jade') {
-        var jadeOptions = {
-              filename: file.src,
-              pretty : true
-            };
-
-
-        var fn = jade.compile(data, jadeOptions);
-        var myArry = ['moo', 'boo', 'roo'];
-        var myObj = { foo: 'bar', woo:'loo' };
-
-        data = fn({ myArry: myArry, myObj: myObj });
+        data = renderJade();
       }
 
-      var $ = cheerio.load(data);
-      var date = String(Math.round(new Date().getTime() / 1000));
-      var title = $('title').text() + date;
-      var srcFiles = [];
+      var $         = cheerio.load(data);
+      var date      = String(Math.round(new Date().getTime() / 1000));
+      var title     = $('title').text() + date;
+      var srcFiles  = [];
       var inlineCss;
 
       $('link').each(function (i, elem) {
-        var target = $(this).attr('href'),
-            map = {
-              file: target,
-              inline : $(this).attr('data-placement') === 'style-tag' ? false : true
-            };
+        var target = $(this).attr('href');
+        var map = {
+          file    : target,
+          inline  : $(this).attr('data-placement') === 'style-tag' ? false : true
+        };
 
         srcFiles.push(map);
+
         $(this).remove();
       });
 
@@ -105,10 +98,7 @@ module.exports = function(grunt) {
         grunt.log.writeln('File ' + file.dest.cyan + ' created.');
 
         if (options.litmus) {
-
-          var cm = require('child_process').exec,
-              fs = require('fs');
-
+          var cm      = require('child_process').exec;
           var command = sendLitmus(output, title);
 
           console.log(command);
@@ -118,7 +108,8 @@ module.exports = function(grunt) {
               console.log(err || stderr, stdout);
 
             // Delete XML After being curl'd
-            fs.unlinkSync('data.xml');
+            grunt.file.delete('data.xml');
+
             next();
           });
 
@@ -153,18 +144,30 @@ module.exports = function(grunt) {
       }
     }
 
+    function renderJade() {
+      // Compile Jade files
+      var jadeOptions = {
+        filename: file.src,
+        pretty : true
+      };
+
+      var fn    = jade.compile(data, jadeOptions);
+      var html  = fn(options.jade);
+
+      return html;
+    };
+
     function sendLitmus(data, title) {
       // Write the data xml file to curl, prolly can get rid of this somehow.
 
-      var xml = xmlBuild(data, title);
+      var xml         = xmlBuild(data, title);
+      var username    = options.litmus.username;
+      var password    = options.litmus.password;
+      var accountUrl  = options.litmus.url;
+      var command     = 'curl -i -X POST -u ' + username + ':' + password + ' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' ' + accountUrl + '/emails.xml -d @data.xml';
 
+      // Write xml file
       grunt.file.write('data.xml', xml);
-
-      var username = options.litmus.username,
-          password = options.litmus.password,
-          accountUrl = options.litmus.url;
-
-      var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+'/emails.xml -d @data.xml';
 
       return command;
     }
@@ -175,6 +178,7 @@ module.exports = function(grunt) {
 
       _.each(options.litmus.applications, function(app) {
         var item = xmlApplications.ele('application');
+
         item.ele('code', app);
       });
 
