@@ -2,14 +2,9 @@
 
 Combine Html and Css into an email
 
-What this will do Eventiually
+This reads Less/Css (one for inline css, one for an inline style tag) and Jade Files then combines  them into a Single Email html file.
+You can then send them off to litmus for testing.
 
-Read Less (one for inline css, one for an inline style tag) and Jade Files, combine into a Single Email html file.
-
-This will then be curled  off to litmus. Eventually whatever email testing service  (Are there any others?)
-
-*** TODO ***
-Replace curl exec function with actualy http thingy (wtf).
 
 ## Getting Started
 Install this grunt plugin next to your project's [grunt.js gruntfile][getting_started] with: `npm install grunt-EmailBuilder`
@@ -48,9 +43,11 @@ grunt.loadNpmTasks('grunt-EmailBuilder');
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt][grunt].
 
+- Uses [Juice](https://github.com/LearnBoost/juice) to inline css.
+
 ## Release History
 1.3 upgrade to grunt 0.4
 
 ## License
-Copyright (c) 2012 Steven Miller
+Copyright (c) 2013 Steven Miller
 Licensed under the MIT license.
