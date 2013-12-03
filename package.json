@@ -28,17 +28,17 @@
   "scripts": {
     "test": "grunt test"
   },
-  "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-lib-contrib": "~0.6.1",
-    "juice": "~0.4.0"
-  },
   "keywords": [
     "gruntplugin"
   ],
+  "devDependencies": {
+    "grunt": "~0.4.2"
+  },
   "dependencies": {
+    "grunt-lib-contrib": "~0.6.1",
     "xmlbuilder": "~0.4.2",
     "cheerio": "~0.10.3",
+    "juice": "~0.4.0",
     "less": "~1.5.1",
     "jade": "~0.35.0"
   }
