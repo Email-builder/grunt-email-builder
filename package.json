@@ -34,6 +34,9 @@
   "devDependencies": {
     "grunt": "~0.4.2"
   },
+  "peerDependencies": {
+    "grunt": "~0.4.2"
+  },
   "dependencies": {
     "grunt-lib-contrib": "~0.6.1",
     "xmlbuilder": "~0.4.2",

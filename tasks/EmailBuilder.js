@@ -2,7 +2,7 @@
  * grunt-EmailBuilder
  * https://github.com/yargalot/Email-Builder
  *
- * Copyright (c) 2012 Steven Miller
+ * Copyright (c) 2013 Steven Miller
  * Licensed under the MIT license.
  */
 
@@ -81,7 +81,7 @@ module.exports = function(grunt) {
         } else {
 
           renderCss(srcFile.file, function(data) {
-            $('head').append('<style>'+data+'</style>');
+            $('head').append('<style>' + data + '</style>');
             nextFile();
           });
         }
@@ -100,8 +100,6 @@ module.exports = function(grunt) {
         if (options.litmus) {
           var cm      = require('child_process').exec;
           var command = sendLitmus(output, title);
-
-          console.log(command);
 
           cm(command, function(err, stdout, stderr) {
             if (err || stderr)
@@ -128,8 +126,8 @@ module.exports = function(grunt) {
 
       if ( path.extname(input) === '.less') {
         var parser = new(less.Parser)({
-          paths: [path.dirname(input)], // Specify search paths for @import directives
-          filename: path.basename(input) // Specify a filename, for better error messages
+          paths     : [path.dirname(input)], // Specify search paths for @import directives
+          filename  : path.basename(input) // Specify a filename, for better error messages
         });
 
         parser.parse(data, function (err, tree) {
@@ -139,8 +137,11 @@ module.exports = function(grunt) {
           data = tree.toCSS(); // Minify CSS output
           callback(data);
         });
+
       } else {
+
         callback(data);
+        
       }
     }
 
