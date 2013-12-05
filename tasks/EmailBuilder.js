@@ -43,9 +43,10 @@ module.exports = function(grunt) {
       var basename  = path.basename(file.src,  '.html');
       var basepath  = process.cwd();
 
-       // jade compile
+
+      // jade compile
       if ( path.extname(file.src) === '.jade') {
-        data = renderJade();
+        data = renderJade(data, file.src);
       }
 
       var $         = cheerio.load(data);
@@ -141,14 +142,14 @@ module.exports = function(grunt) {
       } else {
 
         callback(data);
-        
+
       }
     }
 
-    function renderJade() {
+    function renderJade(data, filename) {
       // Compile Jade files
       var jadeOptions = {
-        filename: file.src,
+        filename: filename,
         pretty : true
       };
 

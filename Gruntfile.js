@@ -35,7 +35,7 @@ module.exports = function(grunt) {
       globals: {}
     },
     emailBuilder: {
-      test :{
+      test : {
         options: {
           litmus : {
             username : 'username',
@@ -47,7 +47,7 @@ module.exports = function(grunt) {
         },
         files : testFiles
       },
-      produce :{
+      produce : {
         files : testFiles
       }
     }
@@ -58,6 +58,6 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', 'emailBuilder:produce');
-  grunt.registerTask('test', 'emailBuilder:test');
+  grunt.registerTask('test',    'emailBuilder:test');
 
 };
