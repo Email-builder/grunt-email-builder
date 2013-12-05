@@ -43,7 +43,6 @@ module.exports = function(grunt) {
       var basename  = path.basename(file.src,  '.html');
       var basepath  = process.cwd();
 
-
       // jade compile
       if ( path.extname(file.src) === '.jade') {
         data = renderJade(data, file.src);
