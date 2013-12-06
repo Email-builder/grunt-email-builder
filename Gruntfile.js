@@ -58,6 +58,6 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', 'emailBuilder:produce');
-  grunt.registerTask('test',    'emailBuilder:test');
+  grunt.registerTask('test',    'emailBuilder:produce');
 
 };
