@@ -90,14 +90,11 @@ module.exports = function(grunt) {
         }
       }, function(err) {
 
-        var output = juice($.html(), inlineCss);
+        var output = inlineCss ? juice.inlineContent($.html(), inlineCss) : $.html();
 
-        grunt.log.writeln('Writing...'.cyan);
-
-        //Reset to grunt directory
         grunt.file.setBase(basepath);
+        grunt.log.writeln('Writing...'.cyan);
         grunt.file.write(file.dest, output);
-
         grunt.log.writeln('File ' + file.dest.cyan + ' created.');
 
         if (options.litmus) {
