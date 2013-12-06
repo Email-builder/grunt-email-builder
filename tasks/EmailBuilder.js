@@ -55,6 +55,9 @@ module.exports = function(grunt) {
       var inlineCss;
 
       $('link').each(function (i, elem) {
+
+        if (!$(this).attr('data-placement')) return;
+
         var target = $(this).attr('href');
         var map = {
           file    : target,
