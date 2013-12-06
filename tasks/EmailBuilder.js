@@ -34,7 +34,6 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(task_name, task_description, function() {
 
     var options   = this.options();
-    var basepath  = options.basepath;
     var done      = this.async();
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
@@ -58,13 +57,10 @@ module.exports = function(grunt) {
 
         if (!$(this).attr('data-placement')) return;
 
-        var target = $(this).attr('href');
-        var map = {
-          file    : target,
+        srcFiles.push({
+          file    : $(this).attr('href'),
           inline  : $(this).attr('data-placement') === 'style-tag' ? false : true
-        };
-
-        srcFiles.push(map);
+        });
 
         $(this).remove();
       });
@@ -74,20 +70,14 @@ module.exports = function(grunt) {
 
       // Less Compilation
       grunt.util.async.forEachSeries(srcFiles, function(srcFile, nextFile) {
-        var _that = $(this);
 
-        if (srcFile.inline) {
-          renderCss(srcFile.file, function(data) {
-            inlineCss = data;
-            nextFile();
-          });
-        } else {
+        renderCss(srcFile.file, function(data) {
 
-          renderCss(srcFile.file, function(data) {
-            $('head').append('<style>' + data + '</style>');
-            nextFile();
-          });
-        }
+          srcFile.inline ? inlineCss = data : $('head').append('<style>' + data + '</style>');
+          nextFile();
+
+        });
+
       }, function(err) {
 
         var output = inlineCss ? juice.inlineContent($.html(), inlineCss) : $.html();
@@ -147,15 +137,12 @@ module.exports = function(grunt) {
 
     function renderJade(data, filename) {
       // Compile Jade files
-      var jadeOptions = {
+      var fn    = jade.compile(data, {
         filename: filename,
         pretty : true
-      };
+      });
 
-      var fn    = jade.compile(data, jadeOptions);
-      var html  = fn(options.jade);
-
-      return html;
+      return fn(options.jade);
     };
 
     function sendLitmus(data, title) {
