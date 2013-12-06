@@ -1,7 +1,7 @@
 {
   "name": "grunt-email-builder",
   "description": "Combine Html/Jade and Css/Less into an email",
-  "version": "0.2.2",
+  "version": "0.2.21",
   "homepage": "https://github.com/yargalot/Email-Builder",
   "author": {
     "name": "Steven Miller",
