@@ -21,7 +21,7 @@ module.exports = function(grunt) {
 
 
   // Required modules
-  var juice     = require('juice')
+  var juice     = require('juice');
   var http      = require('http');
   var builder   = require('xmlbuilder');
   var less      = require('less');
@@ -29,12 +29,12 @@ module.exports = function(grunt) {
   var path      = require('path');
   var cheerio   = require('cheerio');
   var  _        = grunt.util._;
+  var cm        = require('child_process').exec;
   var helpers   = require('grunt-lib-contrib').init(grunt);
 
   grunt.registerMultiTask(task_name, task_description, function() {
 
     var options   = this.options();
-    var basepath  = options.basepath;
     var done      = this.async();
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
@@ -58,22 +58,21 @@ module.exports = function(grunt) {
       // External stylesheet
       $('link').each(function (i, elem) {
 
-        if (!$(this).attr('data-placement')) return;
+        if (!$(this).attr('data-placement')) {
+          return;
+        }
 
-        var target = $(this).attr('href');
-        var map = {
-          file    : target,
+        srcFiles.push({
+          file    : $(this).attr('href'),
           inline  : $(this).attr('data-placement') === 'style-tag' ? false : true
-        };
-
-        srcFiles.push(map);
+        });
 
         $(this).remove();
       });
 
       // Embedded Stylesheet. Will ignore style tags with data-ignore attribute
-      $('style').each(function(i, element){
-        if(!$(this).attr('data-ignore')){
+      $('style').each(function(i, element) {
+        if(!$(this).attr('data-ignore')) {
           style = $(this).text();
           $(this).remove();
         }
@@ -84,28 +83,27 @@ module.exports = function(grunt) {
 
       // Less Compilation
       grunt.util.async.forEachSeries(srcFiles, function(srcFile, nextFile) {
-        var _that = $(this);
 
-        if (srcFile.inline) {
-          renderCss(srcFile.file, function(data) {
+        renderCss(srcFile.file, function(data) {
+
+          if (srcFile.inline) {
             inlineCss = data;
-            nextFile();
-          });
-        } else {
-
-          renderCss(srcFile.file, function(data) {
+          } else {
             $('head').append('<style>' + data + '</style>');
-            nextFile();
-          });
-        }
+          }
+
+          nextFile();
+
+        });
+
       }, function(err) {
         var output;
 
-        if(srcFiles.length > 0){
+        if(srcFiles.length > 0) {
 
           // Inline external styles
           output = inlineCss ? juice.inlineContent($.html(), inlineCss) : $.html();
-        }else{
+        } else {
 
           // Inline embedded styles
           output = (srcFiles.length === 0 ) ? juice.inlineContent($.html(), style) : $.html();
@@ -118,12 +116,13 @@ module.exports = function(grunt) {
 
 
         if (options.litmus) {
-          var cm      = require('child_process').exec;
+
           var command = sendLitmus(output, title);
 
           cm(command, function(err, stdout, stderr) {
-            if (err || stderr)
+            if (err || stderr) {
               console.log(err || stderr, stdout);
+            }
 
             // Delete XML After being curl'd
             grunt.file.delete('data.xml');
@@ -151,8 +150,9 @@ module.exports = function(grunt) {
         });
 
         parser.parse(data, function (err, tree) {
-          if (err)
+          if (err) {
             return console.error(err);
+          }
 
           data = tree.toCSS(); // Minify CSS output
           callback(data);
@@ -167,16 +167,13 @@ module.exports = function(grunt) {
 
     function renderJade(data, filename) {
       // Compile Jade files
-      var jadeOptions = {
+      var fn    = jade.compile(data, {
         filename: filename,
         pretty : true
-      };
+      });
 
-      var fn    = jade.compile(data, jadeOptions);
-      var html  = fn(options.jade);
-
-      return html;
-    };
+      return fn(options.jade);
+    }
 
     function sendLitmus(data, title) {
       // Write the data xml file to curl, prolly can get rid of this somehow.
@@ -191,7 +188,7 @@ module.exports = function(grunt) {
       // Write xml file
       grunt.file.write('data.xml', xml);
 
-      // return command;
+      return command;
     }
 
     //Application XMl Builder
@@ -213,7 +210,7 @@ module.exports = function(grunt) {
           .ele('body').dat(data).up()
           .ele('subject', title)
         .end({pretty: true});
-        
+
       return xml;
     }
 

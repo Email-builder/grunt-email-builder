@@ -20,15 +20,31 @@ var grunt = require('grunt');
     test.ifError(value)
 */
 
-exports['EmailBuilder'] = {
+exports.emailBuilder = {
   setUp: function(done) {
     // setup here
     done();
   },
-  'helper': function(test) {
-    test.expect(1);
+  compile: function(test) {
+    test.expect(4);
     // tests here
-    test.equal(grunt.helper('EmailBuilder'), 'EmailBuilder!!!', 'should return the correct value.');
+
+    var actual    = grunt.file.read('example/test/htmlTest.html');
+    var expected  = grunt.file.read('test/expected/htmlTest.html');
+    test.equal(expected, actual, 'should inline css links that have data-placement tags');
+
+    actual    = grunt.file.read('example/test/htmlTest2.html');
+    expected  = grunt.file.read('test/expected/htmlTest2.html');
+    test.equal(expected, actual, 'should inline style tags and ignore style tags with the data-ignore attribute');
+
+    actual    = grunt.file.read('example/test/jadeTest.html');
+    expected  = grunt.file.read('test/expected/jadeTest.html');
+    test.equal(expected, actual, 'should compile less and jade then inline css links that have data-placement tags');
+
+    actual    = grunt.file.read('example/test/jadeTest2.html');
+    expected  = grunt.file.read('test/expected/jadeTest2.html');
+    test.equal(expected, actual, 'should compile less and jade then inline style tags and ignore style tags with the data-ignore attribute');
+
     test.done();
   }
 };

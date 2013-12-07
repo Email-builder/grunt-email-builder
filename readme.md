@@ -47,17 +47,24 @@ In your html files you can either inline the css on elements or inline css into 
 Use the `data-ignore` attribute when you want to prevent any embedded styles from being removed or inlined
 ```html
   <style data-ignore="ignore">
-   .class { color: #000;} 
+   .class { color: #000;}
   </style>
 ```
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt][grunt].
 
-- Uses [Juice](https://github.com/LearnBoost/juice) to inline css.
+### Contributors
+[Jeremy Peter](https://github.com/jeremypeter)
+[Josh Gillies](https://github.com/joshgillies)
+
+## Thanks to
+[Juice](https://github.com/LearnBoost/juice) for compiling.
 
 ## Release History
-1.3 upgrade to grunt 0.4
+- 0.3 Inline css from style tags
+- 0.22 Bug Fixes
+- 0.2 upgrade to grunt 0.4
 
 ## License
 Copyright (c) 2013 Steven Miller
