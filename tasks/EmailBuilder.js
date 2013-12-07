@@ -21,15 +21,15 @@ module.exports = function(grunt) {
 
 
   // Required modules
-  var juice     = require('juice')
-  var http      = require('http');
+  var juice     = require('juice');
   var builder   = require('xmlbuilder');
   var less      = require('less');
   var jade      = require('jade');
   var path      = require('path');
   var cheerio   = require('cheerio');
-  var  _        = grunt.util._;
-  var helpers   = require('grunt-lib-contrib').init(grunt);
+  var _         = require('lodash');
+  var async     = require('async');
+
 
   grunt.registerMultiTask(task_name, task_description, function() {
 
@@ -37,7 +37,7 @@ module.exports = function(grunt) {
     var basepath  = options.basepath;
     var done      = this.async();
 
-    grunt.util.async.forEachSeries(this.files, function(file, next) {
+    async.forEachSeries(this.files, function(file, next) {
 
       var data      = grunt.file.read(file.src);
       var basename  = path.basename(file.src,  '.html');
@@ -48,12 +48,12 @@ module.exports = function(grunt) {
         data = renderJade(data, file.src);
       }
 
-      var $         = cheerio.load(data);
-      var date      = grunt.template.today('yyyy-mm-dd');
-      var title     = $('title').text() + date;
-      var srcFiles  = [];
-      var inlineCss;
-      var style     = '';
+      var $           = cheerio.load(data);
+      var date        = grunt.template.today('yyyy-mm-dd');
+      var title       = $('title').text() + date;
+      var srcFiles    = [];
+      var embeddedCss = '';
+      var extCss;
 
       // External stylesheet
       $('link').each(function (i, elem) {
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
       // Embedded Stylesheet. Will ignore style tags with data-ignore attribute
       $('style').each(function(i, element){
         if(!$(this).attr('data-ignore')){
-          style = $(this).text();
+          embeddedCss += $(this).text();
           $(this).remove();
         }
       });
@@ -83,12 +83,12 @@ module.exports = function(grunt) {
       grunt.file.setBase(path.dirname(file.src));
 
       // Less Compilation
-      grunt.util.async.forEachSeries(srcFiles, function(srcFile, nextFile) {
+      async.forEachSeries(srcFiles, function(srcFile, nextFile) {
         var _that = $(this);
 
         if (srcFile.inline) {
           renderCss(srcFile.file, function(data) {
-            inlineCss = data;
+            extCss = data;
             nextFile();
           });
         } else {
@@ -104,11 +104,11 @@ module.exports = function(grunt) {
         if(srcFiles.length > 0){
 
           // Inline external styles
-          output = inlineCss ? juice.inlineContent($.html(), inlineCss) : $.html();
+          output = extCss ? juice.inlineContent($.html(), extCss) : $.html();
         }else{
 
           // Inline embedded styles
-          output = (srcFiles.length === 0 ) ? juice.inlineContent($.html(), style) : $.html();
+          output = (srcFiles.length === 0 ) ? juice.inlineContent($.html(), embeddedCss) : $.html();
         }
 
         grunt.file.setBase(basepath);
