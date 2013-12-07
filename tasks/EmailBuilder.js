@@ -186,7 +186,7 @@ module.exports = function(grunt) {
       // Write xml file
       grunt.file.write('data.xml', xml);
 
-      // return command;
+      return command;
     }
 
     //Application XMl Builder
