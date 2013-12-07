@@ -52,8 +52,8 @@ module.exports = function(grunt) {
       var date      = grunt.template.today('yyyy-mm-dd');
       var title     = $('title').text() + date;
       var srcFiles  = [];
-      var embeddedCss = '';
       var inlineCss;
+      var style     = '';
 
       // External stylesheet
       $('link').each(function (i, elem) {
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
       // Embedded Stylesheet. Will ignore style tags with data-ignore attribute
       $('style').each(function(i, element){
         if(!$(this).attr('data-ignore')){
-          embeddedCss = $(this).text();
+          style = $(this).text();
           $(this).remove();
         }
       });
@@ -108,7 +108,7 @@ module.exports = function(grunt) {
         }else{
 
           // Inline embedded styles
-          output = (srcFiles.length === 0 ) ? juice.inlineContent($.html(), embeddedCss) : $.html();
+          output = (srcFiles.length === 0 ) ? juice.inlineContent($.html(), style) : $.html();
         }
 
         grunt.file.setBase(basepath);
@@ -191,7 +191,7 @@ module.exports = function(grunt) {
       // Write xml file
       grunt.file.write('data.xml', xml);
 
-      return command;
+      // return command;
     }
 
     //Application XMl Builder
@@ -213,7 +213,7 @@ module.exports = function(grunt) {
           .ele('body').dat(data).up()
           .ele('subject', title)
         .end({pretty: true});
-        console.log(title);
+        
       return xml;
     }
 
