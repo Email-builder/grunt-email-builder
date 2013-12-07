@@ -41,11 +41,12 @@
     "grunt": "~0.4.2"
   },
   "dependencies": {
-    "grunt-lib-contrib": "~0.6.1",
     "xmlbuilder": "~0.4.2",
     "cheerio": "~0.10.3",
     "juice": "~0.4.0",
     "less": "~1.5.1",
-    "jade": "~0.35.0"
+    "jade": "~0.35.0",
+    "async": "~0.2.9",
+    "lodash": "~2.4.1"
   }
 }

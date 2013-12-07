@@ -14,6 +14,7 @@ head
     style
     //- Target Outlook 2007 and 2010
 
+<<<<<<< HEAD
   style.
     #outlook a {
       padding: 0;
@@ -121,11 +122,14 @@ head
       color: red;
       font-size: 48px;
     }
+=======
+  link(href="../less/inline.less", data-placement='inline')
+  link(href="../less/style.less", data-placement='style-tag')
+>>>>>>> pr/5
 
-    .blue {
-      color: blue;
-      font-size: 48px;
-    }
+  style.
+    .gray { color: gray; }
+    .purple { color: purple; }
 
   style(data-ignore='ignore').
     table td {

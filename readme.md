@@ -44,7 +44,7 @@ In your html files you can either inline the css on elements or inline css into 
   <link rel="stylesheet" data-placement="style-tag"  href="../css/style.css"  type="text/css" />
 ```
 
-Use the `data-ignore` attribute when you want to prevent any embedded styles from being removed or inlined
+Use the `data-ignore` attribute on embedded styles to prevent them from being inlined, otherwise all embedded styles will be inline. 
 ```html
   <style data-ignore="ignore">
    .class { color: #000;}
