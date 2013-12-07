@@ -99,17 +99,11 @@ module.exports = function(grunt) {
           });
         }
       }, function(err) {
-        var output;
 
-        if(srcFiles.length > 0){
-
-          // Inline external styles
-          output = extCss ? juice.inlineContent($.html(), extCss) : $.html();
-        }else{
-
-          // Inline embedded styles
-          output = (srcFiles.length === 0 ) ? juice.inlineContent($.html(), embeddedCss) : $.html();
-        }
+        if(err) grunt.log.error(err);
+        
+        var allCss = embeddedCss + extCss;
+        var output = allCss ? juice.inlineContent($.html(), allCss) : $.html();
 
         grunt.file.setBase(basepath);
         grunt.log.writeln('Writing...'.cyan);
