@@ -22,24 +22,14 @@ module.exports = function(grunt) {
 
   // Required modules
   var juice     = require('juice');
-<<<<<<< HEAD
-  var http      = require('http');
-=======
->>>>>>> pr/5
   var builder   = require('xmlbuilder');
   var less      = require('less');
   var jade      = require('jade');
   var path      = require('path');
   var cheerio   = require('cheerio');
-<<<<<<< HEAD
-  var  _        = grunt.util._;
   var cm        = require('child_process').exec;
-  var helpers   = require('grunt-lib-contrib').init(grunt);
-=======
   var _         = require('lodash');
   var async     = require('async');
-
->>>>>>> pr/5
 
   grunt.registerMultiTask(task_name, task_description, function() {
 
@@ -80,15 +70,9 @@ module.exports = function(grunt) {
       });
 
       // Embedded Stylesheet. Will ignore style tags with data-ignore attribute
-<<<<<<< HEAD
-      $('style').each(function(i, element) {
-        if(!$(this).attr('data-ignore')) {
-          style = $(this).text();
-=======
       $('style').each(function(i, element){
         if(!$(this).attr('data-ignore')){
           embeddedCss += $(this).text();
->>>>>>> pr/5
           $(this).remove();
         }
       });
@@ -97,24 +81,12 @@ module.exports = function(grunt) {
       grunt.file.setBase(path.dirname(file.src));
 
       // Less Compilation
-<<<<<<< HEAD
-      grunt.util.async.forEachSeries(srcFiles, function(srcFile, nextFile) {
+      async.forEachSeries(srcFiles, function(srcFile, nextFile) {
 
         renderCss(srcFile.file, function(data) {
-=======
-      async.forEachSeries(srcFiles, function(srcFile, nextFile) {
-        var _that = $(this);
-
-        if (srcFile.inline) {
-          renderCss(srcFile.file, function(data) {
-            extCss = data;
-            nextFile();
-          });
-        } else {
->>>>>>> pr/5
 
           if (srcFile.inline) {
-            inlineCss = data;
+            extCss = data;
           } else {
             $('head').append('<style>' + data + '</style>');
           }
@@ -124,19 +96,9 @@ module.exports = function(grunt) {
         });
 
       }, function(err) {
-<<<<<<< HEAD
-        var output;
-
-        if(srcFiles.length > 0) {
-
-          // Inline external styles
-          output = inlineCss ? juice.inlineContent($.html(), inlineCss) : $.html();
-        } else {
-=======
->>>>>>> pr/5
 
         if(err) grunt.log.error(err);
-        
+
         var html = $.html();
         var allCss = embeddedCss + extCss;
         var output = allCss ? juice.inlineContent(html, allCss) : html;
