@@ -22,6 +22,7 @@ Place this in your grunt file.
   test :{
     options: {
       litmus : {
+        subject: 'Custom subject line', //Defaults to title of email + yyyy-mm-dd
         username : 'username',
         password : 'password',
         url : 'https://yoursite.litmus.com',
@@ -41,6 +42,13 @@ In your html files you can either inline the css on elements or inline css into 
 ```html
   <link rel="stylesheet" data-placement="inline"     href="../css/inline.css" type="text/css" />
   <link rel="stylesheet" data-placement="style-tag"  href="../css/style.css"  type="text/css" />
+```
+
+Use the `data-ignore` attribute when you want to prevent any embedded styles from being removed or inlined
+```html
+  <style data-ignore="ignore">
+   .class { color: #000;} 
+  </style>
 ```
 
 ## Contributing
