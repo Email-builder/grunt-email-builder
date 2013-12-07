@@ -2,6 +2,7 @@ module.exports = function(grunt) {
 
   var testFiles = {
     'example/test/jadeTest.html' : 'example/jade/jadeTest.jade',
+    'example/test/jadeTest2.html' : 'example/jade/jadeTest2.jade',
     'example/test/htmlTest.html' : 'example/html/htmlTest.html',
     'example/test/htmlTest2.html' : 'example/html/htmlTest2.html'
   };
