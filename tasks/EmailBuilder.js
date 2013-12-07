@@ -34,6 +34,7 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(task_name, task_description, function() {
 
     var options   = this.options();
+    var basepath  = options.basepath;
     var done      = this.async();
 
     grunt.util.async.forEachSeries(this.files, function(file, next) {
@@ -48,21 +49,34 @@ module.exports = function(grunt) {
       }
 
       var $         = cheerio.load(data);
-      var date      = String(Math.round(new Date().getTime() / 1000));
+      var date      = grunt.template.today('yyyy-mm-dd');
       var title     = $('title').text() + date;
       var srcFiles  = [];
+      var embeddedCss = '';
       var inlineCss;
 
+      // External stylesheet
       $('link').each(function (i, elem) {
 
         if (!$(this).attr('data-placement')) return;
 
-        srcFiles.push({
-          file    : $(this).attr('href'),
+        var target = $(this).attr('href');
+        var map = {
+          file    : target,
           inline  : $(this).attr('data-placement') === 'style-tag' ? false : true
-        });
+        };
+
+        srcFiles.push(map);
 
         $(this).remove();
+      });
+
+      // Embedded Stylesheet. Will ignore style tags with data-ignore attribute
+      $('style').each(function(i, element){
+        if(!$(this).attr('data-ignore')){
+          embeddedCss = $(this).text();
+          $(this).remove();
+        }
       });
 
       // Set to target file path to get css
@@ -70,22 +84,38 @@ module.exports = function(grunt) {
 
       // Less Compilation
       grunt.util.async.forEachSeries(srcFiles, function(srcFile, nextFile) {
+        var _that = $(this);
 
-        renderCss(srcFile.file, function(data) {
+        if (srcFile.inline) {
+          renderCss(srcFile.file, function(data) {
+            inlineCss = data;
+            nextFile();
+          });
+        } else {
 
-          srcFile.inline ? inlineCss = data : $('head').append('<style>' + data + '</style>');
-          nextFile();
-
-        });
-
+          renderCss(srcFile.file, function(data) {
+            $('head').append('<style>' + data + '</style>');
+            nextFile();
+          });
+        }
       }, function(err) {
+        var output;
 
-        var output = inlineCss ? juice.inlineContent($.html(), inlineCss) : $.html();
+        if(srcFiles.length > 0){
+
+          // Inline external styles
+          output = inlineCss ? juice.inlineContent($.html(), inlineCss) : $.html();
+        }else{
+
+          // Inline embedded styles
+          output = (srcFiles.length === 0 ) ? juice.inlineContent($.html(), embeddedCss) : $.html();
+        }
 
         grunt.file.setBase(basepath);
         grunt.log.writeln('Writing...'.cyan);
         grunt.file.write(file.dest, output);
         grunt.log.writeln('File ' + file.dest.cyan + ' created.');
+
 
         if (options.litmus) {
           var cm      = require('child_process').exec;
@@ -137,21 +167,25 @@ module.exports = function(grunt) {
 
     function renderJade(data, filename) {
       // Compile Jade files
-      var fn    = jade.compile(data, {
+      var jadeOptions = {
         filename: filename,
         pretty : true
-      });
+      };
 
-      return fn(options.jade);
+      var fn    = jade.compile(data, jadeOptions);
+      var html  = fn(options.jade);
+
+      return html;
     };
 
     function sendLitmus(data, title) {
       // Write the data xml file to curl, prolly can get rid of this somehow.
 
-      var xml         = xmlBuild(data, title);
       var username    = options.litmus.username;
       var password    = options.litmus.password;
       var accountUrl  = options.litmus.url;
+      var subject     = options.litmus.subject || title;
+      var xml         = xmlBuild(data, subject);
       var command     = 'curl -i -X POST -u ' + username + ':' + password + ' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' ' + accountUrl + '/emails.xml -d @data.xml';
 
       // Write xml file
@@ -179,7 +213,7 @@ module.exports = function(grunt) {
           .ele('body').dat(data).up()
           .ele('subject', title)
         .end({pretty: true});
-
+        console.log(title);
       return xml;
     }
 
