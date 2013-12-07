@@ -55,8 +55,9 @@ Use the `data-ignore` attribute when you want to prevent any embedded styles fro
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt][grunt].
 
 ### Contributors
-[Jeremy Peter](https://github.com/jeremypeter)
-[Josh Gillies](https://github.com/joshgillies)
+Thanks for helping out:
+- [Jeremy Peter](https://github.com/jeremypeter)
+- [Josh Gillies](https://github.com/joshgillies)
 
 ## Thanks to
 [Juice](https://github.com/LearnBoost/juice) for compiling.
