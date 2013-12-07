@@ -102,8 +102,9 @@ module.exports = function(grunt) {
 
         if(err) grunt.log.error(err);
         
+        var html = $.html();
         var allCss = embeddedCss + extCss;
-        var output = allCss ? juice.inlineContent($.html(), allCss) : $.html();
+        var output = allCss ? juice.inlineContent(html, allCss) : html;
 
         grunt.file.setBase(basepath);
         grunt.log.writeln('Writing...'.cyan);
