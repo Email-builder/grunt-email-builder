@@ -40,6 +40,7 @@ module.exports = function(grunt) {
       test : {
         options: {
           litmus : {
+            subject: 'custom subject',
             username : 'username',
             password : 'password',
             url : 'https://yoursite.litmus.com',
