@@ -29,7 +29,7 @@ module.exports = function(grunt) {
   var cheerio   = require('cheerio');
   var _         = require('lodash');
   var async     = require('async');
-
+  var request   = require('request');
 
   grunt.registerMultiTask(task_name, task_description, function() {
 
@@ -110,21 +110,11 @@ module.exports = function(grunt) {
         grunt.log.writeln('Writing...'.cyan);
         grunt.file.write(file.dest, output);
         grunt.log.writeln('File ' + file.dest.cyan + ' created.');
-
+        // console.log(options.litmus);
 
         if (options.litmus) {
-          var cm      = require('child_process').exec;
-          var command = sendLitmus(output, title);
 
-          cm(command, function(err, stdout, stderr) {
-            if (err || stderr)
-              console.log(err || stderr, stdout);
-
-            // Delete XML After being curl'd
-            grunt.file.delete('data.xml');
-
-            next();
-          });
+          sendLitmus(output, title);
 
         } else {
           next();
@@ -174,19 +164,36 @@ module.exports = function(grunt) {
     };
 
     function sendLitmus(data, title) {
-      // Write the data xml file to curl, prolly can get rid of this somehow.
 
       var username    = options.litmus.username;
       var password    = options.litmus.password;
       var accountUrl  = options.litmus.url;
       var subject     = options.litmus.subject || title;
       var xml         = xmlBuild(data, subject);
-      var command     = 'curl -i -X POST -u ' + username + ':' + password + ' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' ' + accountUrl + '/emails.xml -d @data.xml';
+      var opts = {
+        'url': accountUrl + '/emails.xml',
+        'method': 'POST',
+        'headers': {
+          'Content-type': 'application/xml',
+          'Accept': 'application/xml'
+        },
+        'auth': {
+          'user': username,
+          'pass': password,
+        },
+        'body': xml
+      };
 
-      // Write xml file
-      grunt.file.write('data.xml', xml);
+      request(opts, function(err, res, body){
+        if(err) throw err;
 
-      return command;
+        var headers = res.headers;
+
+        Object.keys(headers).forEach(function(key){
+          console.log(key.toUpperCase().bold + ': ' + headers[key]);
+        })
+        console.log('---------------------\n' + body);
+      })
     }
 
     //Application XMl Builder
