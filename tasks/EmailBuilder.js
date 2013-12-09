@@ -110,7 +110,6 @@ module.exports = function(grunt) {
         grunt.log.writeln('Writing...'.cyan);
         grunt.file.write(file.dest, output);
         grunt.log.writeln('File ' + file.dest.cyan + ' created.');
-        // console.log(options.litmus);
 
         if (options.litmus) {
 
