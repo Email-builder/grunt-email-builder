@@ -34,7 +34,6 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(task_name, task_description, function() {
 
     var options   = this.options();
-    var basepath  = options.basepath;
     var done      = this.async();
 
     async.forEachSeries(this.files, function(file, next) {
@@ -58,15 +57,14 @@ module.exports = function(grunt) {
       // External stylesheet
       $('link').each(function (i, elem) {
 
-        if (!$(this).attr('data-placement')) return;
+        if (!$(this).attr('data-placement')) {
+          return;
+        }
 
-        var target = $(this).attr('href');
-        var map = {
-          file    : target,
+        srcFiles.push({
+          file    : $(this).attr('href'),
           inline  : $(this).attr('data-placement') === 'style-tag' ? false : true
-        };
-
-        srcFiles.push(map);
+        });
 
         $(this).remove();
       });
@@ -84,24 +82,25 @@ module.exports = function(grunt) {
 
       // Less Compilation
       async.forEachSeries(srcFiles, function(srcFile, nextFile) {
-        var _that = $(this);
 
-        if (srcFile.inline) {
-          renderCss(srcFile.file, function(data) {
+        renderCss(srcFile.file, function(data) {
+
+          if (srcFile.inline) {
             extCss = data;
-            nextFile();
-          });
-        } else {
-
-          renderCss(srcFile.file, function(data) {
+          } else {
             $('head').append('<style>' + data + '</style>');
-            nextFile();
-          });
-        }
+          }
+
+          nextFile();
+
+        });
+
       }, function(err) {
 
-        if(err) grunt.log.error(err);
-        
+        if(err) {
+          grunt.log.error(err);
+        }
+
         var html = $.html();
         var allCss = embeddedCss + extCss;
         var output = allCss ? juice.inlineContent(html, allCss) : html;
@@ -135,8 +134,9 @@ module.exports = function(grunt) {
         });
 
         parser.parse(data, function (err, tree) {
-          if (err)
+          if (err) {
             return console.error(err);
+          }
 
           data = tree.toCSS(); // Minify CSS output
           callback(data);
@@ -151,16 +151,13 @@ module.exports = function(grunt) {
 
     function renderJade(data, filename) {
       // Compile Jade files
-      var jadeOptions = {
+      var fn    = jade.compile(data, {
         filename: filename,
         pretty : true
-      };
+      });
 
-      var fn    = jade.compile(data, jadeOptions);
-      var html  = fn(options.jade);
-
-      return html;
-    };
+      return fn(options.jade);
+    }
 
     function sendLitmus(data, title) {
 
@@ -214,7 +211,7 @@ module.exports = function(grunt) {
           .ele('body').dat(data).up()
           .ele('subject', title)
         .end({pretty: true});
-        
+
       return xml;
     }
 
