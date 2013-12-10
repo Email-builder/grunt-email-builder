@@ -1,4 +1,5 @@
 var grunt = require('grunt');
+var emailBuilder = require('../tasks/EmailBuilder');
 
 /*
   ======== A Handy Little Nodeunit Reference ========
@@ -19,6 +20,10 @@ var grunt = require('grunt');
     test.doesNotThrow(block, [error], [message])
     test.ifError(value)
 */
+
+grunt.loadTasks('tasks');
+
+console.log(emailBuilder);
 
 exports.emailBuilder = {
   setUp: function(done) {
@@ -44,6 +49,10 @@ exports.emailBuilder = {
     actual    = grunt.file.read('example/test/jadeTest2.html');
     expected  = grunt.file.read('test/expected/jadeTest2.html');
     test.equal(expected, actual, 'should compile less and jade then inline style tags and ignore style tags with the data-ignore attribute');
+
+    test.done();
+  },
+  litmus: function(test) {
 
     test.done();
   }
