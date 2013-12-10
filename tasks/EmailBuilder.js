@@ -181,15 +181,19 @@ module.exports = function(grunt) {
       };
 
       request(opts, function(err, res, body){
-        if(err) throw err;
+        if(err) {
+          throw err;
+        }
 
         var headers = res.headers;
 
         Object.keys(headers).forEach(function(key){
           console.log(key.toUpperCase().bold + ': ' + headers[key]);
-        })
+        });
+
         console.log('---------------------\n' + body);
-      })
+
+      });
     }
 
     //Application XMl Builder
