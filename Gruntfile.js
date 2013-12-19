@@ -50,10 +50,10 @@ module.exports = function(grunt) {
       test : {
         options: {
           litmus : {
-            subject: 'Custom subject line', // Optional
-            username : process.env.LIT_USER,
-            password : process.env.LIT_PASS,
-            url      : 'https://meltmedia.litmus.com',
+            subject: 'Custom subject line', // Optional, defaults to title of email + yyyy-mm-dd
+            username : 'username',
+            password : 'password',
+            url      : 'https://yoursite.litmus.com',
             applications : litmusClients
           },
         },
