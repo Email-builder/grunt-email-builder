@@ -22,30 +22,25 @@ Place this in your grunt file.
   test :{
     options: {
       litmus : {
-        subject: 'Custom subject line', //Defaults to title of email + yyyy-mm-dd
+        subject: 'Custom subject line', // Optional, defaults to title of email + yyyy-mm-dd
         username : 'username',
         password : 'password',
         url : 'https://yoursite.litmus.com',
         //https://yoursite.litmus.com/emails/clients.xml
-        applications : ['gmailnew', 'hotmail', 'outlookcom', 'ol2000', 'ol2002', 'ol2003', 'ol2007', 'ol2010','ol2011', 'ol2013', 'appmail6','iphone3', 'iphone4', 'ipad3']
+        applications : ['gmailnew', 'hotmail', 'outlookcom', 'ol2000', 'ol2002', 'ol2003', 'ol2007', 'ol2010','ol2011', 'ol2013', 'appmail6','iphone4', 'iphone5', 'ipad3']
       },
     },
     files : {
-      'example/test/jadeTest.html' : 'example/jade/jadeTest.jade',
       'example/test/htmlTest.html' : 'example/html/htmlTest.html'
     }
   }
 }
 ```
 
-In your html files you can either inline the css on elements or inline css into styletags in the file by using `data-placement` on the link tag.
+Use the `data-ignore` attribute on embedded or external styles to prevent them from being inlined. Otherwise all styles will be inline. External styles with `data-ignore` will be embedded in their own `<style>` tag within the document.
 ```html
-  <link rel="stylesheet" data-placement="inline"     href="../css/inline.css" type="text/css" />
-  <link rel="stylesheet" data-placement="style-tag"  href="../css/style.css"  type="text/css" />
-```
+  <link rel="stylesheet" data-ignore="ignore"  href="../css/style.css"  type="text/css" />
 
-Use the `data-ignore` attribute on embedded styles to prevent them from being inlined, otherwise all embedded styles will be inline.
-```html
   <style data-ignore="ignore">
    .class { color: #000;}
   </style>
