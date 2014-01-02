@@ -26,7 +26,10 @@ Litmus.prototype.initVars = function() {
 Litmus.prototype.run = function(html, title) {
   this.title = this.options.subject || title;
   this.html = html;
-  this.getTests(this.getId);
+  this.getTests(function(body){
+    var id = this.getId(body)
+    this.sendTest(id);
+  });
 };
 
 // Grab tests from Litmus
@@ -54,7 +57,7 @@ Litmus.prototype.getId = function(body) {
     id = $matchedName.parent().children('id').text();
   }
 
-  this.sendTest(id);
+  return id;
 };
 
 // Send a new version if id is availabe otherwise send a new test
@@ -63,7 +66,7 @@ Litmus.prototype.sendTest = function(id) {
   var opts = this.reqObj;
 
   opts.headers = { 'Content-type': 'application/xml', 'Accept': 'application/xml' };
-  opts.body = this.buildXml(this.html, this.title);
+  opts.body = this.getBuiltXml(this.html, this.title);
 
   if(id){
     this.log('Sending new version of ' + this.title);
@@ -108,7 +111,7 @@ Litmus.prototype.mailNewVersion = function(err, res, body) {
 
 };
 
-Litmus.prototype.buildXml = function(html, title) {
+Litmus.prototype.getBuiltXml = function(html, title) {
   var xmlApplications = builder.create('applications').att('type', 'array');
 
   _.each(this.options.applications, function(app) {
