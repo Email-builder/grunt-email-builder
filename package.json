@@ -41,6 +41,7 @@
     "grunt": "~0.4.2"
   },
   "dependencies": {
+    "nodemailer": "~0.6.0",
     "xmlbuilder": "~0.4.2",
     "cheerio": "~0.10.3",
     "juice": "~0.4.0",
