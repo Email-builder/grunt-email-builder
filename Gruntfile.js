@@ -75,7 +75,7 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', 'emailBuilder:produce');
-  grunt.registerTask('test',    ['jshint','emailBuilder:produce', 'nodeunit']);
-  grunt.registerTask('litmus',    ['jshint', 'emailBuilder:test', 'nodeunit']);
+  grunt.registerTask('test',    ['jshint', 'emailBuilder:produce', 'nodeunit']);
+  grunt.registerTask('litmus',  ['jshint', 'emailBuilder:test',    'nodeunit']);
 
 };
