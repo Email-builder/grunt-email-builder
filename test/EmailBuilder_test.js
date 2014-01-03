@@ -1,6 +1,7 @@
 var grunt = require('grunt');
 var emailBuilder = require('../tasks/EmailBuilder');
 
+
 /*
   ======== A Handy Little Nodeunit Reference ========
   https://github.com/caolan/nodeunit
@@ -31,7 +32,7 @@ exports.emailBuilder = {
     done();
   },
   compile: function(test) {
-    test.expect(4);
+    test.expect(2);
     // tests here
 
     var actual    = grunt.file.read('example/test/htmlTest.html');
@@ -41,14 +42,6 @@ exports.emailBuilder = {
     actual    = grunt.file.read('example/test/htmlTest2.html');
     expected  = grunt.file.read('test/expected/htmlTest2.html');
     test.equal(expected, actual, 'should inline style tags and ignore style tags with the data-ignore attribute');
-
-    actual    = grunt.file.read('example/test/jadeTest.html');
-    expected  = grunt.file.read('test/expected/jadeTest.html');
-    test.equal(expected, actual, 'should compile less and jade then inline css links that have data-placement tags');
-
-    actual    = grunt.file.read('example/test/jadeTest2.html');
-    expected  = grunt.file.read('test/expected/jadeTest2.html');
-    test.equal(expected, actual, 'should compile less and jade then inline style tags and ignore style tags with the data-ignore attribute');
 
     test.done();
   },
