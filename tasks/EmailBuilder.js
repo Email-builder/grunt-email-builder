@@ -25,6 +25,7 @@ module.exports = function(grunt) {
       path      = require('path'),
       cheerio   = require('cheerio'),
       async     = require('async'),
+      encode    = require('./lib/entityEncode.js'),
       Litmus    = require('./lib/litmus.js');  
 
   grunt.registerMultiTask(task_name, task_description, function() {
@@ -42,9 +43,11 @@ module.exports = function(grunt) {
           $title = $('title').text() + date || date,
           $styleLinks = $('link'),
           $styleTags = $('style'),
+          $doctype = $._root.children[0].data, 
           srcFiles = [],
           embeddedCss = '',
-          extCss = ''; 
+          extCss = '';
+          
 
       // link tags
       $styleLinks.each(function(i, link){
@@ -90,6 +93,20 @@ module.exports = function(grunt) {
         var html = $.html(),
             allCss = embeddedCss + extCss,
             output = allCss ? juice.inlineContent(html, allCss) : html;
+
+        // Encode special characters if option encodeSpecialChars is true    
+        if(options.encodeSpecialChars === true) { 
+          output = encode.htmlEncode(output); 
+        }
+
+        // If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
+        if(options.doctype === true) {
+          if($doctype.trim().length){
+            output = '<' + $doctype + '>' + output;
+          }else {
+            output = '<!DOCTYPE html>' + output;
+          }
+        }
 
         // Set cwd back to root folder    
         grunt.file.setBase(basepath);
