@@ -19,6 +19,15 @@ function EmailBuilder(task) {
 
   this.task     = task;
   this.options  = task.options(EmailBuilder.Defaults);
+  this.basepath = process.cwd();
+
+  // Cheerio
+  // ---------------
+  this.$;
+  this.$title;
+  this.$doctype;
+  this.$styleTags;
+  this.$styleLinks;
 
 }
 
@@ -29,112 +38,117 @@ EmailBuilder.Defaults         = {}
 
 EmailBuilder.prototype.run = function(grunt) {
 
-  var options = this.options,
-      done = this.task.async();
+  var options = this.options;
 
   this.task.files.forEach(function(file) {
-      // Do something to some files...
- 
-      // Print a success message.
-      grunt.log.writeln('File "' + file.dest + '" created.');
-  });
-  
-  async.eachSeries(this.task.files, function(file, next){
-
     var html = grunt.file.read(file.src),
-        basepath  = process.cwd(),
         date  = grunt.template.today('yyyy-mm-dd'),
-        $ = cheerio.load(html),
-        $title = $('title').text() + date || date,
-        $styleLinks = $('link'),
-        $styleTags = $('style'),
-        $doctype = $._root.children[0].data, 
-        srcFiles = [],
         embeddedCss = '',
         extCss = '';
-        
 
-    // link tags
-    $styleLinks.each(function(i, link){
-      var $this = $(this),
-          target = $this.attr('href'),
-          map = {
-            file: target,
-            inline: $this.attr('data-ignore') ? false : true
-          };
+    this.$ = cheerio.load(html);
+    
+    this.$title       = this.$('title').text() + date || date,
+    this.$doctype     = this.$._root.children[0].data;
+    this.$styleTags   = this.$('style');
+    this.$styleLinks  = this.$('link');
 
-      srcFiles.push(map);
-      $this.remove(); 
-    });
+    var srcFiles = this.linkTags(this.$styleLinks);
 
-    // style tags
-    $styleTags.each(function(i, element){
-      var $this = $(this);
-
-      if(!$this.attr('data-ignore')){
-        embeddedCss += $this.text();
-        $this.remove();
-      }
-    });
+    this.styleTags($styleTags);
     
     // Set to target file path to get css
     grunt.file.setBase(path.dirname(file.src));
 
-    async.eachSeries(srcFiles, function(srcFile, nextFile){
+    srcFiles.forEach(function(srcFile) {
       var css = grunt.file.read(srcFile.file);
 
-
-      if(srcFile.inline){
+      if(srcFile.inline) {
         extCss += css;
-      }else{
+      } else {
         $('head').append('<style>' + css + '</style>');
       }
-
-      nextFile();
-
-    }, function(err){
-      if(err) { grunt.log.error(err); }
-      
-      var html = $.html(),
-          allCss = embeddedCss + extCss,
-          output = allCss ? juice.inlineContent(html, allCss) : html;
-
-      // Encode special characters if option encodeSpecialChars is true    
-      if(options.encodeSpecialChars === true) { 
-        output = encode.htmlEncode(output); 
-      }
-
-      // If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
-      if(options.doctype === true) {
-        if($doctype.trim().length){
-          output = '<' + $doctype + '>' + output;
-        }else {
-          output = '<!DOCTYPE html>' + output;
-        }
-      }
-
-      // Set cwd back to root folder    
-      grunt.file.setBase(basepath);
-
-      grunt.log.writeln('Writing...'.cyan);
-      grunt.file.write(file.dest, output);
-      grunt.log.writeln('File ' + file.dest.cyan + ' created.');
-      
-      if (options.litmus) {
-
-        this.litmus();
-
-      } else {
-
-        next();
-
-      }
-      
     });
 
-  }, function(){
-    done();
+    // Begin File prep
+
+    var html = $.html(),
+        allCss = embeddedCss + extCss,
+        output = allCss ? juice.inlineContent(html, allCss) : html;
+
+    // Encode special characters if option encodeSpecialChars is true    
+    if(options.encodeSpecialChars === true) { 
+      output = encode.htmlEncode(output); 
+    }
+
+    this.doctype();
+
+    this.writeFile();
+    
+    if (options.litmus) {
+      this.litmus();
+    }
+
   });
+}
+
+// If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
+EmailBuilder.prototype.docType = function() {
+
+
+  if(options.doctype === true) {
+    if($doctype.trim().length){
+      output = '<' + $doctype + '>' + output;
+    }else {
+      output = '<!DOCTYPE html>' + output;
+    }
+  }
+}
+
+
+EmailBuilder.prototype.styleTags = function(styleTags) {
+
+  styleTags.each(function(i, element){
+    var $this = $(this);
+
+    if(!$this.attr('data-ignore')) {
+      embeddedCss += $this.text();
+      $this.remove();
+    }
+  });
+
+}
+
+
+EmailBuilder.prototype.linkTags = function(styleLinks) {
+
+  var linkedStyles = []
+
+  styleLinks.each(function(i, link){
+    var $this = $(this),
+        target = $this.attr('href'),
+        map = {
+          file: target,
+          inline: $this.attr('data-ignore') ? false : true
+        };
+
+    linkedStyles.push(map);
+    $this.remove(); 
+  });
+
+  return linkedStyles;
+
+}
+
+
+EmailBuilder.prototype.writeFile = function() {
+
+  // Set cwd back to root folder   
+  grunt.file.setBase(this.basepath);
+
+  grunt.log.writeln('Writing...'.cyan);
+  grunt.file.write(file.dest, output);
+  grunt.log.writeln('File ' + file.dest.cyan + ' created.');
 
 }
 
@@ -143,8 +157,8 @@ EmailBuilder.prototype.litmus = function() {
   var litmus = new Litmus(this.options.litmus);
 
   // If subject is set but is empty set it to $title
-  if(options.litmus.subject.trim().length === 0) { 
-    options.litmus.subject = $title; 
+  if(this.options.litmus.subject.trim().length === 0) { 
+    this.options.litmus.subject = $title; 
   }
 
   litmus.run(output, $title, next);
