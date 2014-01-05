@@ -46,6 +46,7 @@ module.exports = function(grunt) {
     nodeunit: {
       tests: ['test/*_test.js']
     },
+    clean: ["example/test"],
     emailBuilder: {
       test : {
         options: {
@@ -75,13 +76,14 @@ module.exports = function(grunt) {
   grunt.loadTasks('tasks');
 
   // Load Npm Tasks
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-nodeunit');
 
   // Default task.
   grunt.registerTask('default', 'emailBuilder:produce');
-  grunt.registerTask('test',    ['jshint', 'emailBuilder:produce', 'nodeunit']);
+  grunt.registerTask('test',    ['jshint', 'clean', 'emailBuilder:produce', 'nodeunit']);
   grunt.registerTask('litmus',  ['jshint', 'emailBuilder:test',    'nodeunit']);
 
 };
