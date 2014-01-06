@@ -31,10 +31,6 @@ function EmailBuilder(task) {
   this.$styleTags;
   this.$styleLinks;
 
-  // Things that need to be thrown around
-  // ---------------
-  this.output;
-
 }
 
 EmailBuilder.taskName         = 'emailBuilder';
@@ -49,51 +45,60 @@ EmailBuilder.prototype.run = function(grunt) {
 
   this.task.files.forEach(function(file) {
 
-    var fileData = grunt.file.read(file.src),
-        date  = grunt.template.today('yyyy-mm-dd'),
-        extCss = '';
+    var fileData = grunt.file.read(file.src);
+    var date     = grunt.template.today('yyyy-mm-dd');
 
+    // Cheerio Init
     $           = cheerio.load(fileData);
     $title      = $('title').text() + date || date,
     $doctype    = $._root.children[0].data;
     $styleTags  = $('style');
     $styleLinks = $('link');
 
+    // Read Css Files
     var srcFiles    = _that.linkTags($styleLinks);
     var embeddedCss = _that.styleTags($styleTags);
-    
-    // Set to target file path to get css
-    grunt.file.setBase(path.dirname(file.src));
+    var externalCss = _that.externalCss(srcFiles, file.src);
+    var allCss      = embeddedCss + externalCss;
 
-    srcFiles.forEach(function(srcFile) {
-      var css = grunt.file.read(srcFile.file);
-
-      if(srcFile.inline) {
-        extCss += css;
-      } else {
-        $('head').append('<style>' + css + '</style>');
-      }
-    });
-
-    // Begin File prep
-
-    var html = $.html(),
-        allCss = embeddedCss + extCss;
-        
-
-    this.output = allCss ? juice.inlineContent(html, allCss) : html;
+    // Get file output ready
+    var output     = allCss ? juice.inlineContent($.html(), allCss) : $.html();
 
     // Encode special characters if option encodeSpecialChars is true    
     if(options.encodeSpecialChars === true) { 
-      this.output = encode.htmlEncode(this.output); 
+      output = encode.htmlEncode(output); 
     }
 
-    var writes = _that.docType(this.output);
-
-    _that.writeFile(file.dest, writes);
+    _that.writeFile(file.dest, output);
 
   });
 };
+
+EmailBuilder.prototype.externalCss = function(files, fileSource) {
+
+  var externalCss = '';
+  var grunt = this.task.grunt;
+
+  // Set to target file path to get css
+  grunt.file.setBase(path.dirname(fileSource));
+
+  files.forEach(function(srcFile) {
+    var css = grunt.file.read(srcFile.file);
+
+    if(srcFile.inline) {
+      externalCss += css;
+    } else {
+      $('head').append('<style>' + css + '</style>');
+    }
+  });
+
+  // Set cwd back to root folder   
+  grunt.file.setBase(this.basepath);
+
+  return externalCss;
+
+};
+
 
 // If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
 EmailBuilder.prototype.docType = function(output) {
@@ -128,7 +133,6 @@ EmailBuilder.prototype.styleTags = function(styleTags) {
     }
   });
 
-
   return css;
 
 };
@@ -155,19 +159,17 @@ EmailBuilder.prototype.linkTags = function(styleLinks) {
 };
 
 
-EmailBuilder.prototype.writeFile = function(fileDest, output) {
+EmailBuilder.prototype.writeFile = function(fileDest, fileData) {
 
-  var grunt = this.task.grunt;
-
-  // Set cwd back to root folder   
-  grunt.file.setBase(this.basepath);
+  var grunt     = this.task.grunt;
+  var writeData = this.docType(fileData);
 
   grunt.log.writeln('Writing...'.cyan);
-  grunt.file.write(fileDest, output);
+  grunt.file.write(fileDest, writeData);
   grunt.log.writeln('File ' + fileDest.cyan + ' created.');
 
   if (this.options.litmus) {
-    this.litmus(output);
+    this.litmus(writeData);
   }
 
 };
