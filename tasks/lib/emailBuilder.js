@@ -49,7 +49,7 @@ EmailBuilder.prototype.run = function(grunt) {
 
     // Cheerio Init
     $           = cheerio.load(fileData);
-    $title      = $('title').text() + date || date,
+    $title      = $('title').text() + date || date;
     $doctype    = $._root.children[0].data;
     $styleTags  = $('style');
     $styleLinks = $('link');
