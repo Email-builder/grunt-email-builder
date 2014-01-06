@@ -1,4 +1,4 @@
-# grunt-email-builder [![Build Status](https://travis-ci.org/yargalot/Email-Builder.png?branch=master)](https://travis-ci.org/yargalot/Email-Builder)
+# grunt-email-builder [![Build Status](https://travis-ci.org/yargalot/Email-Builder.png?branch=master)](https://travis-ci.org/yargalot/Email-Builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder)
 
 Inline css into HTML or inline css into styletags for emails. You can then send files to Litmus for testing.
 
