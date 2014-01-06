@@ -82,6 +82,13 @@ Type: ```Boolean``` Default: ```false```
 If set to ```true```, special characters will be encoded to their numerical value. e.g. © --> &amp;#169;
 
 
+## Windows Installation Guide
+- Make sure the latest Python 2.7.* is installed.
+- Right click on Computer/My Computer and go to Properties, go to Advanced System Settings, then Environment Variables.
+- Set the environment variable for "PYTHON" to where you installed Python27, eg C:\Python27\python.exe is the default.
+- If Visual Studio is not installed, install Visual Studio 2010. If you are using a later version of Visual Studio, eg 2012 or 2013, set the environment variable "GYP_MSVS_VERSION" to the corresponding version of Visual Studio.
+
+
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt][grunt].
 
