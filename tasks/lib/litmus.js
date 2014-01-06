@@ -27,7 +27,7 @@ Litmus.prototype.run = function(html, title) {
   this.title = this.options.subject || title;
   this.html = html;
   this.getTests(function(body){
-    var id = this.getId(body)
+    var id = this.getId(body);
     this.sendTest(id);
   });
 };
@@ -136,10 +136,10 @@ Litmus.prototype.getBuiltXml = function(html, title) {
 // Logging helpers
 Litmus.prototype.log = function(str) {
   return console.log(str.cyan);
-}
+};
 
 Litmus.prototype.logSuccess = function(str) {
   return console.log(str.green);
-}
+};
 
 module.exports = Litmus;

@@ -1,3 +1,5 @@
+/* jshint -W030,-W117 */
+
 /*
  * grunt-EmailBuilder
  * https://github.com/yargalot/Email-Builder
@@ -35,9 +37,9 @@ function EmailBuilder(task) {
 
 }
 
-EmailBuilder.taskName         = 'emailBuilder',
+EmailBuilder.taskName         = 'emailBuilder';
 EmailBuilder.taskDescription  = 'Compile Files';
-EmailBuilder.Defaults         = {}
+EmailBuilder.Defaults         = {};
 
 
 EmailBuilder.prototype.run = function(grunt) {
@@ -47,22 +49,17 @@ EmailBuilder.prototype.run = function(grunt) {
 
   this.task.files.forEach(function(file) {
 
-    var html = grunt.file.read(file.src),
+    var fileData = grunt.file.read(file.src),
         date  = grunt.template.today('yyyy-mm-dd'),
         extCss = '';
 
-    embeddedCss = '';
-
-    $           = cheerio.load(html);
+    $           = cheerio.load(fileData);
     $title      = $('title').text() + date || date,
     $doctype    = $._root.children[0].data;
     $styleTags  = $('style');
     $styleLinks = $('link');
 
-
-
-    var srcFiles = _that.linkTags($styleLinks);
-
+    var srcFiles    = _that.linkTags($styleLinks);
     var embeddedCss = _that.styleTags($styleTags);
     
     // Set to target file path to get css
@@ -88,19 +85,15 @@ EmailBuilder.prototype.run = function(grunt) {
 
     // Encode special characters if option encodeSpecialChars is true    
     if(options.encodeSpecialChars === true) { 
-      this.output = encode.htmlEncode(output); 
+      this.output = encode.htmlEncode(this.output); 
     }
 
-    var writes = _that.docType(output);
+    var writes = _that.docType(this.output);
 
     _that.writeFile(file.dest, writes);
-    
-    if (options.litmus) {
-      this.litmus();
-    }
 
   });
-}
+};
 
 // If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
 EmailBuilder.prototype.docType = function(output) {
@@ -119,7 +112,7 @@ EmailBuilder.prototype.docType = function(output) {
 
   return doctyped;
 
-}
+};
 
 
 EmailBuilder.prototype.styleTags = function(styleTags) {
@@ -138,7 +131,7 @@ EmailBuilder.prototype.styleTags = function(styleTags) {
 
   return css;
 
-}
+};
 
 
 EmailBuilder.prototype.linkTags = function(styleLinks) {
@@ -159,7 +152,7 @@ EmailBuilder.prototype.linkTags = function(styleLinks) {
 
   return linkedStyles;
 
-}
+};
 
 
 EmailBuilder.prototype.writeFile = function(fileDest, output) {
@@ -173,9 +166,13 @@ EmailBuilder.prototype.writeFile = function(fileDest, output) {
   grunt.file.write(fileDest, output);
   grunt.log.writeln('File ' + fileDest.cyan + ' created.');
 
-}
+  if (this.options.litmus) {
+    this.litmus(output);
+  }
 
-EmailBuilder.prototype.litmus = function() {
+};
+
+EmailBuilder.prototype.litmus = function(emailData) {
 
   var litmus = new Litmus(this.options.litmus);
 
@@ -184,9 +181,9 @@ EmailBuilder.prototype.litmus = function() {
     this.options.litmus.subject = $title; 
   }
 
-  litmus.run(output, $title, next);
+  litmus.run(emailData, $title);
 
-}
+};
 
 
 EmailBuilder.registerWithGrunt = function(grunt) {
