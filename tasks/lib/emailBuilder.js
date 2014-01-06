@@ -40,7 +40,6 @@ EmailBuilder.Defaults         = {};
 
 EmailBuilder.prototype.run = function(grunt) {
 
-  var options = this.options;
   var _that   = this;
 
   this.task.files.forEach(function(file) {
@@ -65,7 +64,7 @@ EmailBuilder.prototype.run = function(grunt) {
     var output     = allCss ? juice.inlineContent($.html(), allCss) : $.html();
 
     // Encode special characters if option encodeSpecialChars is true    
-    if(options.encodeSpecialChars === true) { 
+    if(_that.options.encodeSpecialChars === true) { 
       output = encode.htmlEncode(output); 
     }
 
