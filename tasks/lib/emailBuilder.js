@@ -173,6 +173,7 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData) {
 
 };
 
+
 EmailBuilder.prototype.litmus = function(emailData) {
 
   var litmus = new Litmus(this.options.litmus);
