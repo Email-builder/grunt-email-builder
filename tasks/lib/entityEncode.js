@@ -1,3 +1,5 @@
+/* jshint -W100 */
+
 module.exports.htmlEncode = htmlEncode;
 
 function specialCharToEntity(s) {  

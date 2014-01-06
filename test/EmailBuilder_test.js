@@ -24,8 +24,6 @@ var emailBuilder = require('../tasks/EmailBuilder');
 
 grunt.loadTasks('tasks');
 
-console.log(emailBuilder);
-
 exports.emailBuilder = {
   setUp: function(done) {
     // setup here
