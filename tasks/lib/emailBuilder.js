@@ -22,6 +22,7 @@ function EmailBuilder(task) {
   this.task     = task;
   this.options  = task.options(EmailBuilder.Defaults);
   this.basepath = process.cwd();
+  this.done     = this.task.async();
 
   // Cheerio
   // ---------------
@@ -42,7 +43,7 @@ EmailBuilder.prototype.run = function(grunt) {
 
   var _that   = this;
 
-  this.task.files.forEach(function(file) {
+  async.eachSeries(this.task.files, function(file, next) {
 
     var fileData = grunt.file.read(file.src);
     var date     = grunt.template.today('yyyy-mm-dd');
@@ -68,8 +69,12 @@ EmailBuilder.prototype.run = function(grunt) {
       output = encode.htmlEncode(output); 
     }
 
-    _that.writeFile(file.dest, output);
+    _that.writeFile(file.dest, output, next);
 
+
+
+  }, function(){
+    _that.done();    
   });
 };
 
@@ -160,7 +165,7 @@ EmailBuilder.prototype.linkTags = function(styleLinks) {
 };
 
 
-EmailBuilder.prototype.writeFile = function(fileDest, fileData) {
+EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 
   var grunt     = this.task.grunt;
   var writeData = this.docType(fileData);
@@ -171,6 +176,8 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData) {
 
   if (this.options.litmus) {
     this.litmus(writeData);
+  }else{
+    nextFile();
   }
 
 };
