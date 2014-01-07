@@ -104,7 +104,7 @@ EmailBuilder.prototype.docType = function(output) {
 
   var doctyped = '';
 
-  if ( this.options.doctype === true ) {
+  if ( this.options.doctype !== false ) {
     
     if ( $doctype.trim().length ) {
       doctyped = '<' + $doctype + '>' + output;
@@ -112,6 +112,8 @@ EmailBuilder.prototype.docType = function(output) {
       doctyped = '<!DOCTYPE html>' + output;
     }
 
+  }else{
+    doctyped = output;
   }
 
   return doctyped;
