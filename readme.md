@@ -101,10 +101,11 @@ Thanks for helping out:
 [Juice](https://github.com/LearnBoost/juice) for compiling.
 
 ## Release History
-- 1.0.1 - Removed data-placement attribute in place of data-ignore. Added options.doctype and options.encodeSpecialChars. Improved options.litmus to send new versions of existing tests instead of creating new test.  
-- 0.3  -  Inline css from style tags
-- 0.22 - Bug Fixes
-- 0.2 - upgrade to grunt 0.4
+- 1.1.0 Added options.doctype and options.encodeSpecialChars.
+- 1.0.0 Removed data-placement attribute in place of data-ignore. Improved options.litmus to send new versions of existing tests instead of creating new test.
+- 0.0.3 Inline css from style tags
+- 0.0.22 Bug Fixes
+- 0.0.2 Upgrade to grunt 0.4
 
 ## License
 Copyright (c) 2013 Steven Miller
