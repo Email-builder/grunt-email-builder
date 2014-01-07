@@ -50,7 +50,6 @@ module.exports = function(grunt) {
     emailBuilder: {
       test : {
         options: {
-          doctype: true,
           encodeSpecialChars: true,
           litmus : {
             subject: 'Custom subject line', // Optional, defaults to title of email + yyyy-mm-dd
@@ -65,7 +64,7 @@ module.exports = function(grunt) {
       produce : {
         files : testFiles,
         options : {
-          doctype: true,
+          doctype: false,
           encodeSpecialChars : true
         }
       }
