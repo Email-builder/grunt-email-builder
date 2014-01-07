@@ -73,8 +73,10 @@ EmailBuilder.prototype.run = function(grunt) {
 
 
 
-  }, function(){
-    _that.done();    
+  }, function() {
+
+    _that.done();
+
   });
 };
 
