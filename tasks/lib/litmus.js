@@ -25,6 +25,11 @@ Litmus.prototype.initVars = function() {
 // Run test
 Litmus.prototype.run = function(html, title) {
   this.title = this.options.subject || title;
+
+  if( (this.title === undefined) || (this.title.trim().length === 0) ){
+    this.title = title;
+  }
+  
   this.html = html;
   this.getTests(function(body){
     var id = this.getId(body);
@@ -64,16 +69,16 @@ Litmus.prototype.getId = function(body) {
 Litmus.prototype.sendTest = function(id) {
   var self = this;
   var opts = this.reqObj;
-
+console.log(typeof this.title);
   opts.headers = { 'Content-type': 'application/xml', 'Accept': 'application/xml' };
   opts.body = this.getBuiltXml(this.html, this.title);
 
   if(id){
-    this.log('Sending new version of ' + this.title);
+    this.log('Sending new version: '.bold + this.title);
     opts.url = this.options.url + '/tests/'+ id + '/versions.xml';
     request.post(opts, this.mailNewVersion.bind(this));
   }else{
-    this.log('Sending new test');
+    this.log('Sending new test: '.bold + this.title);
     opts.url = this.options.url + '/emails.xml';
     request.post(opts, this.logHeaders.bind(this));
   }
