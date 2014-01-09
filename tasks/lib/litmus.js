@@ -69,7 +69,7 @@ Litmus.prototype.getId = function(body) {
 Litmus.prototype.sendTest = function(id) {
   var self = this;
   var opts = this.reqObj;
-console.log(typeof this.title);
+
   opts.headers = { 'Content-type': 'application/xml', 'Accept': 'application/xml' };
   opts.body = this.getBuiltXml(this.html, this.title);
 
@@ -108,9 +108,9 @@ Litmus.prototype.mailNewVersion = function(err, res, body) {
   mail({
       from: 'no-reply@test.com',
       to: guid,
-      subject: 'test sendmail',
+      subject: this.title,
       text: '',
-      html: ''
+      html: this.html
   });
   this.logSuccess('New version sent!');
 
