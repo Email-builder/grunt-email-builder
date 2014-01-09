@@ -46,19 +46,18 @@ EmailBuilder.prototype.run = function(grunt) {
   async.eachSeries(this.task.files, function(file, next) {
 
     var fileData = grunt.file.read(file.src);
-    var date     = grunt.template.today('yyyy-mm-dd');
 
     // Cheerio Init
     $           = cheerio.load(fileData);
-    $title      = $('title').text() + date || date;
+    $title      = $('title').text().trim();
     $doctype    = $._root.children[0].data;
     $styleTags  = $('style');
     $styleLinks = $('link');
 
     // Read Css Files
-    var srcFiles    = _that.linkTags($styleLinks);
-    var embeddedCss = _that.styleTags($styleTags);
-    var externalCss = _that.externalCss(srcFiles, file.src);
+    var srcFiles    = _that.getLinkTags($styleLinks);
+    var embeddedCss = _that.getStyleTags($styleTags);
+    var externalCss = _that.getExternalCss(srcFiles, file.src);
     var allCss      = embeddedCss + externalCss;
 
     // Get file output ready
@@ -80,7 +79,7 @@ EmailBuilder.prototype.run = function(grunt) {
   });
 };
 
-EmailBuilder.prototype.externalCss = function(files, fileSource) {
+EmailBuilder.prototype.getExternalCss = function(files, fileSource) {
 
   var externalCss = '';
   var grunt = this.task.grunt;
@@ -107,7 +106,7 @@ EmailBuilder.prototype.externalCss = function(files, fileSource) {
 
 
 // If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
-EmailBuilder.prototype.docType = function(output) {
+EmailBuilder.prototype.getDoctype = function(output) {
 
   var doctyped = '';
 
@@ -128,7 +127,7 @@ EmailBuilder.prototype.docType = function(output) {
 };
 
 
-EmailBuilder.prototype.styleTags = function(styleTags) {
+EmailBuilder.prototype.getStyleTags = function(styleTags) {
 
   var css = '';
 
@@ -146,7 +145,7 @@ EmailBuilder.prototype.styleTags = function(styleTags) {
 };
 
 
-EmailBuilder.prototype.linkTags = function(styleLinks) {
+EmailBuilder.prototype.getLinkTags = function(styleLinks) {
 
   var linkedStyles = [];
 
@@ -170,7 +169,7 @@ EmailBuilder.prototype.linkTags = function(styleLinks) {
 EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 
   var grunt     = this.task.grunt;
-  var writeData = this.docType(fileData);
+  var writeData = this.getDoctype(fileData);
 
   grunt.log.writeln('Writing...'.cyan);
   grunt.file.write(fileDest, writeData);
@@ -187,14 +186,20 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 
 EmailBuilder.prototype.litmus = function(emailData) {
 
-  var litmus = new Litmus(this.options.litmus);
+  var litmus = new Litmus(this.options.litmus),
+      date    = this.task.grunt.template.today('yyyy-mm-dd'),
+      subject = this.options.litmus.subject;
 
-  // If subject is set but is empty set it to $title
-  if(this.options.litmus.subject.trim().length === 0) { 
-    this.options.litmus.subject = $title; 
+  if( (subject === undefined) || (subject.trim().length === 0) ){
+    subject = $title;
   }
 
-  litmus.run(emailData, $title);
+  // If no subject or title then set to date
+  if(subject.trim().length === 0){
+    subject = date;
+  }  
+  
+  litmus.run(emailData, subject.trim());
 
 };
 
