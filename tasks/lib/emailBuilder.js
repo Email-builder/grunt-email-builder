@@ -24,14 +24,6 @@ function EmailBuilder(task) {
   this.basepath = process.cwd();
   this.done     = this.task.async();
 
-  // Cheerio
-  // ---------------
-  this.$;
-  this.$title;
-  this.$doctype;
-  this.$styleTags;
-  this.$styleLinks;
-
 }
 
 EmailBuilder.taskName         = 'emailBuilder';
@@ -41,27 +33,29 @@ EmailBuilder.Defaults         = {};
 
 EmailBuilder.prototype.run = function(grunt) {
 
-  var _that   = this;
+  var _that = this;
 
   async.eachSeries(this.task.files, function(file, next) {
 
-    var fileData = grunt.file.read(file.src);
+
+    var fileData  = grunt.file.read(file.src),
+        reDoctype = /<!doctype.*?>/gi;
+
+    _that.doctype = fileData.match(reDoctype);
 
     // Cheerio Init
-    $           = cheerio.load(fileData);
-    $title      = $('title').text().trim();
-    $doctype    = $._root.children[0].data;
-    $styleTags  = $('style');
-    $styleLinks = $('link');
+    var $           = _that.$  = cheerio.load(fileData),
+        $styleTags  = $('style'),
+        $styleLinks = $('link');
 
     // Read Css Files
-    var srcFiles    = _that.getLinkTags($styleLinks);
-    var embeddedCss = _that.getStyleTags($styleTags);
-    var externalCss = _that.getExternalCss(srcFiles, file.src);
-    var allCss      = embeddedCss + externalCss;
+    var srcFiles    = _that.getLinkTags($styleLinks),
+        embeddedCss = _that.getStyleTags($styleTags),
+        externalCss = _that.getExternalCss(srcFiles, file.src),
+        allCss      = embeddedCss + externalCss;
 
     // Get file output ready
-    var output     = allCss ? juice.inlineContent($.html(), allCss) : $.html();
+    var output      = allCss ? juice.inlineContent($.html(), allCss) : $.html();
 
     // Encode special characters if option encodeSpecialChars is true    
     if(_that.options.encodeSpecialChars === true) { 
@@ -70,8 +64,6 @@ EmailBuilder.prototype.run = function(grunt) {
 
     _that.writeFile(file.dest, output, next);
 
-
-
   }, function() {
 
     _that.done();
@@ -79,10 +71,12 @@ EmailBuilder.prototype.run = function(grunt) {
   });
 };
 
+
 EmailBuilder.prototype.getExternalCss = function(files, fileSource) {
 
-  var externalCss = '';
-  var grunt = this.task.grunt;
+  var externalCss = '',
+      grunt       = this.task.grunt,
+      $           = this.$;
 
   // Set to target file path to get css
   grunt.file.setBase(path.dirname(fileSource));
@@ -105,31 +99,10 @@ EmailBuilder.prototype.getExternalCss = function(files, fileSource) {
 };
 
 
-// If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
-EmailBuilder.prototype.getDoctype = function(output) {
-
-  var doctyped = '';
-
-  if ( this.options.doctype !== false ) {
-    
-    if ( $doctype.trim().length ) {
-      doctyped = '<' + $doctype + '>' + output;
-    } else {
-      doctyped = '<!DOCTYPE html>' + output;
-    }
-
-  }else{
-    doctyped = output;
-  }
-
-  return doctyped;
-
-};
-
-
 EmailBuilder.prototype.getStyleTags = function(styleTags) {
 
-  var css = '';
+  var $   = this.$,
+      css = '';
 
   styleTags.each(function(i, element){
     var $this = $(this);
@@ -147,10 +120,11 @@ EmailBuilder.prototype.getStyleTags = function(styleTags) {
 
 EmailBuilder.prototype.getLinkTags = function(styleLinks) {
 
-  var linkedStyles = [];
+  var $            = this.$,
+      linkedStyles = [];
 
   styleLinks.each(function(i, link) {
-    var $this = $(this),
+    var $this  = $(this),
         target = $this.attr('href'),
         map = {
           file: target,
@@ -165,11 +139,32 @@ EmailBuilder.prototype.getLinkTags = function(styleLinks) {
 
 };
 
+// If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
+EmailBuilder.prototype.addDoctype = function(output) {
+
+  var doctyped = '',
+      dt       = this.doctype;
+
+  if ( this.options.doctype !== false ) {
+    
+    if ( dt !== null ) {
+      doctyped = dt[0] + output;
+    } else {
+      doctyped = '<!DOCTYPE html>' + output;
+    }
+
+  }else{
+    doctyped = output;
+  }
+
+  return doctyped;
+
+};
 
 EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 
-  var grunt     = this.task.grunt;
-  var writeData = this.getDoctype(fileData);
+  var grunt     = this.task.grunt,
+      writeData = this.addDoctype(fileData);
 
   grunt.log.writeln('Writing...'.cyan);
   grunt.file.write(fileDest, writeData);
@@ -186,9 +181,11 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 
 EmailBuilder.prototype.litmus = function(emailData) {
 
-  var litmus = new Litmus(this.options.litmus),
+  var litmus  = new Litmus(this.options.litmus),
       date    = this.task.grunt.template.today('yyyy-mm-dd'),
-      subject = this.options.litmus.subject;
+      subject = this.options.litmus.subject,
+      $       = this.$,
+      $title  = $('title').text().trim();
 
   if( (subject === undefined) || (subject.trim().length === 0) ){
     subject = $title;
