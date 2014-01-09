@@ -1,9 +1,11 @@
-# grunt-email-builder [![Build Status](https://travis-ci.org/yargalot/Email-Builder.png?branch=master)](https://travis-ci.org/yargalot/Email-Builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder)
+# grunt-email-builder
 
 Inline css into HTML or inline css into styletags for emails. You can then send files to Litmus for testing.
 
+[![NPM version](https://badge.fury.io/js/grunt-email-builder.png)](http://badge.fury.io/js/grunt-email-builder) [![Build Status](https://travis-ci.org/yargalot/Email-Builder.png?branch=master)](https://travis-ci.org/yargalot/Email-Builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 ## Getting Started
+
 Install this grunt plugin next to your project's [grunt.js gruntfile][getting_started] with: `npm install grunt-email-builder`
 
 Then add this line to your project's `grunt.js` gruntfile:
@@ -32,7 +34,7 @@ Place this in your grunt file.
 
 Use the `data-ignore` attribute on embedded or external styles to prevent them from being inlined. Otherwise all styles will be inline. External styles with `data-ignore` will be embedded in their own `<style>` tag within the document.
 ```html
-<!-- external styles -->      
+<!-- external styles -->
 <link rel="stylesheet" data-ignore="ignore"  href="../css/style.css"  type="text/css" />
 
 <!-- embedded styles -->
@@ -53,7 +55,7 @@ Send email tests to Litmus
 litmus : {
 
   // Optional, defaults to title of email + yyyy-mm-dd
-  subject : 'Custom subject line', 
+  subject : 'Custom subject line',
 
   // Litmus username
   username : 'username',
@@ -73,7 +75,7 @@ litmus : {
 
 Type: ```Boolean``` Default: ```true```
 
-If set to ```false```, Doctype will be stripped from dest file. 
+If set to ```false```, Doctype will be stripped from dest file.
 
 **options.encodeSpecialChars**
 
