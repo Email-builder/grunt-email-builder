@@ -9,5 +9,4 @@ deploy:
   api_key:
     secure: FVbeZj877Vijs7TtatO4gZkvrcvq/RUO7W/PWSs/SAJFS7rPQ/yNq7neQMimdT10f+z069Mev0VExy4ODfa7zg4J3uyPN/4cVP7cPm9/+t3a/kuUCkMZrn+URNcNn1RlRbBzEjJ9ckf72nu1UafTZv7gCicJF3ZxFDDzhyD/S34=
   on:
-    branch: master
     tags: true
