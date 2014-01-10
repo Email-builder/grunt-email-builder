@@ -43,11 +43,11 @@
   },
   "dependencies": {
     "nodemailer": "~0.6.0",
-    "xmlbuilder": "~0.4.2",
-    "cheerio": "~0.10.3",
+    "xmlbuilder": "~2.1.0",
+    "cheerio": "~0.13.1",
     "juice": "~0.4.0",
     "async": "~0.2.9",
     "lodash": "~2.4.1",
-    "request": "~2.29.0"
+    "request": "~2.31.0"
   }
 }
