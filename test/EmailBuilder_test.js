@@ -1,5 +1,6 @@
-var grunt = require('grunt');
-var emailBuilder = require('../tasks/EmailBuilder');
+var grunt         = require('grunt');
+var Litmus        = require('../tasks/lib/litmus');
+var emailBuilder  = require('../tasks/EmailBuilder');
 
 
 /*
@@ -30,8 +31,10 @@ exports.emailBuilder = {
     done();
   },
   compile: function(test) {
+    
+    // TESTS
+    // ----------
     test.expect(2);
-    // tests here
 
     var actual    = grunt.file.read('example/test/htmlTest.html');
     var expected  = grunt.file.read('test/expected/htmlTest.html');
@@ -44,6 +47,25 @@ exports.emailBuilder = {
     test.done();
   },
   litmus: function(test) {
+
+    var litmusFunction = new Litmus({
+      subject: 'Custom subject line', // Optional, defaults to title of email + yyyy-mm-dd
+      username : 'username',
+      password : 'password',
+      url      : 'https://yoursite.litmus.com',
+      applications : []
+    });
+
+    var htmlTest  = '<p></p>';
+
+    // TESTS
+    // ----------
+    test.expect(1);
+
+    var actual = grunt.file.read('test/expected/xmlOutput.xml');
+    var expected = litmusFunction.getBuiltXml(htmlTest, 'Test XML');
+
+    test.equal(expected, actual, 'Should return valid xml to send to Litmus');
 
     test.done();
   }
