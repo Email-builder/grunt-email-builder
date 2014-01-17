@@ -35,7 +35,7 @@ Place this in your grunt file.
 To prevent styles from being inlined, use the `data-ignore` attribute on embedded or external styles. Otherwise, all styles will be inlined. External styles with the `data-ignore` attribute will be embedded in their own `<style>` tag within the src document.
 ```html
 <!-- external styles -->
-<link rel="stylesheet" data-ignore="ignore"  href="../css/style.css"  type="text/css" />
+<link rel="stylesheet" data-ignore="ignore"  href="../css/style.css" />
 
 <!-- embedded styles -->
 <style data-ignore="ignore">
@@ -131,6 +131,7 @@ Thanks for helping out:
 [Juice](https://github.com/LearnBoost/juice) for compiling.
 
 ## Release History
+- 1.1.5 Allow options.litmus to run multiple tests
 - 1.1.0 Added options.doctype and options.encodeSpecialChars.
 - 1.0.0 Removed data-placement attribute in place of data-ignore. Improved options.litmus to send new versions of existing tests instead of creating new test.
 - 0.0.3 Inline css from style tags
