@@ -109,6 +109,10 @@ Thanks for helping out:
 - 0.0.22 Bug Fixes
 - 0.0.2 Upgrade to grunt 0.4
 
+## Todo 
+- NodeMailer intergration
+- [Sendgrid Intergration](https://github.com/sendgrid/sendgrid-nodejs)
+
 ## License
 Copyright (c) 2013 Steven Miller
 Licensed under the MIT license.
