@@ -52,7 +52,7 @@ module.exports = function(grunt) {
         options: {
           encodeSpecialChars: true,
           litmus : {
-            subject: 'Custom subject line', // Optional, defaults to title of email + yyyy-mm-dd
+            subject: 'Custom subject line', // Optional, defaults to title of email or yyyy-mm-dd if title or options.subject empty
             username : 'username',
             password : 'password',
             url      : 'https://yoursite.litmus.com',
