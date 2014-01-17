@@ -26,13 +26,13 @@ Place this in your grunt file.
  emailBuilder: {
   test :{
     files : {
-      'example/test/htmlTest.html' : 'example/html/htmlTest.html'
+      'dest/ouput.html' : 'src/input.html'
     }
   }
 }
 ```
 
-Use the `data-ignore` attribute on embedded or external styles to prevent them from being inlined. Otherwise all styles will be inline. External styles with `data-ignore` will be embedded in their own `<style>` tag within the document.
+To prevent styles from being inlined, use the `data-ignore` attribute on embedded or external styles. Otherwise, all styles will be inlined. External styles with the `data-ignore` attribute will be embedded in their own `<style>` tag within the src document.
 ```html
 <!-- external styles -->
 <link rel="stylesheet" data-ignore="ignore"  href="../css/style.css"  type="text/css" />
@@ -54,7 +54,7 @@ Send email tests to Litmus
 ```javascript
 litmus : {
 
-  // Optional, defaults to title of email + yyyy-mm-dd
+  // Optional, defaults to title of email or yyyy-mm-dd if title and options.subject not set
   subject : 'Custom subject line',
 
   // Litmus username
@@ -83,6 +83,34 @@ Type: ```Boolean``` Default: ```false```
 
 If set to ```true```, special characters will be encoded to their numerical value. e.g. © --> &amp;#169;
 
+### Example Usage
+
+```javascript
+emailBuilder:{
+  inline: {
+    files: { 'dest/output.html' : 'src/input.html' },
+    options: {
+      encodeSpecialChars: true
+    }
+  },
+  litmus: {
+    files: { 'dest/output.html' : 'src/input.html' },
+    options: {
+      encodeSpecialChars: true,
+      litmus: {
+        username: 'username',
+        password: 'password',
+        url: 'https://yoursite.litmus.com',
+        applications: ['gmailnew', 'ffgmail', 'chromegmail']
+      }
+    }
+  }
+}
+
+grunt.registerTask('inline', 'emailBuilder:inline');
+grunt.registerTask('litmus', 'emailBuilder:litmus');
+
+```
 
 ## Windows Installation Guide
 - Make sure the latest Python 2.7.* is installed.
