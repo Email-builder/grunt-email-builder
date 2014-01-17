@@ -171,7 +171,7 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
   grunt.log.writeln('File ' + fileDest.cyan + ' created.');
 
   if (this.options.litmus) {
-    this.litmus(writeData);
+    this.litmus(writeData, nextFile);
   }else{
     nextFile();
   }
@@ -179,7 +179,7 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 };
 
 
-EmailBuilder.prototype.litmus = function(emailData) {
+EmailBuilder.prototype.litmus = function(emailData, next) {
 
   var litmus  = new Litmus(this.options.litmus),
       date    = this.task.grunt.template.today('yyyy-mm-dd'),
@@ -196,7 +196,7 @@ EmailBuilder.prototype.litmus = function(emailData) {
     subject = date;
   }  
   
-  litmus.run(emailData, subject.trim());
+  litmus.run(emailData, subject.trim(), next);
 
 };
 

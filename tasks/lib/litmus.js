@@ -23,7 +23,7 @@ Litmus.prototype.initVars = function() {
 };
 
 // Run test
-Litmus.prototype.run = function(html, title) {
+Litmus.prototype.run = function(html, title, next) {
   this.title = this.options.subject || title;
 
   if( (this.title === undefined) || (this.title.trim().length === 0) ){
@@ -34,7 +34,9 @@ Litmus.prototype.run = function(html, title) {
   this.getTests(function(body){
     var id = this.getId(body);
     this.sendTest(id);
+    setTimeout(next, 3500);
   });
+
 };
 
 // Grab tests from Litmus
