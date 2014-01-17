@@ -64,7 +64,6 @@ module.exports = function(grunt) {
       produce : {
         files : testFiles,
         options : {
-          doctype: false,
           encodeSpecialChars : true
         }
       }
