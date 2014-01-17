@@ -4,7 +4,9 @@
   <save_defaults>false</save_defaults>
   <use_defaults>false</use_defaults>
   <email_source>
-    <body><![CDATA[<p></p>]]></body>
+    <body>
+      <![CDATA[<p></p>]]>
+    </body>
     <subject>Test XML</subject>
   </email_source>
 </test_set>
