@@ -13,8 +13,10 @@ var juice     = require('juice'),
     path      = require('path'),
     cheerio   = require('cheerio'),
     async     = require('async'),
+    mailer    = require('nodemailer'),
     encode    = require('./entityEncode'),
-    Litmus    = require('./litmus');  
+    Litmus    = require('./litmus'),
+    transport = mailer.createTransport();
 
 
 function EmailBuilder(task) {
@@ -57,12 +59,35 @@ EmailBuilder.prototype.run = function(grunt) {
     // Get file output ready
     var output      = allCss ? juice.inlineContent($.html(), allCss) : $.html();
 
-    // Encode special characters if option encodeSpecialChars is true    
-    if(_that.options.encodeSpecialChars === true) { 
-      output = encode.htmlEncode(output); 
+    // Encode special characters if option encodeSpecialChars is true
+    if (_that.options.encodeSpecialChars === true) {
+      output = encode.htmlEncode(output);
     }
 
-    _that.writeFile(file.dest, output, next);
+    if (_that.options.emailTest) {
+
+      grunt.log.writeln('Sending test email to ' + _that.options.emailTest.email);
+
+      var mailOptions = {
+        from: 'no-reply@test.com',
+        to: _that.options.emailTest.email,
+        subject: _that.options.emailTest.subject,
+        text: '',
+        html: output
+      };
+
+      transport.sendMail(mailOptions, function(error, response) {
+          response.statusHandler.once("sent", function(data){
+            console.log("Message was accepted by %s", data.domain);
+            _that.writeFile(file.dest, output, next);
+          });
+      });
+
+    } else {
+
+      _that.writeFile(file.dest, output, next);
+
+    }
 
   }, function() {
 
@@ -91,7 +116,7 @@ EmailBuilder.prototype.getExternalCss = function(files, fileSource) {
     }
   });
 
-  // Set cwd back to root folder   
+  // Set cwd back to root folder
   grunt.file.setBase(this.basepath);
 
   return externalCss;
@@ -132,7 +157,7 @@ EmailBuilder.prototype.getLinkTags = function(styleLinks) {
         };
 
     linkedStyles.push(map);
-    $this.remove(); 
+    $this.remove();
   });
 
   return linkedStyles;
@@ -146,14 +171,14 @@ EmailBuilder.prototype.addDoctype = function(output) {
       dt       = this.doctype;
 
   if ( this.options.doctype !== false ) {
-    
+
     if ( dt !== null ) {
       doctyped = dt[0] + output;
     } else {
       doctyped = '<!DOCTYPE html>' + output;
     }
 
-  }else{
+  } else {
     doctyped = output;
   }
 
@@ -172,12 +197,27 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 
   if (this.options.litmus) {
     this.litmus(writeData, nextFile);
-  }else{
+  } else {
     nextFile();
   }
 
 };
 
+// EmailBuilder.prototype.mailTest = function(output) {
+
+//   var grunt = this.task.grunt;
+
+//   grunt.log.writeln('Sending Test Email');
+
+//   nodeMail({
+//     from: 'no-reply@test.com',
+//     to: this.options.emailTest.email,
+//     subject: this.options.emailTest.subject,
+//     text: '',
+//     html: output
+//   });
+
+// };
 
 EmailBuilder.prototype.litmus = function(emailData, next) {
 
@@ -194,8 +234,8 @@ EmailBuilder.prototype.litmus = function(emailData, next) {
   // If no subject or title then set to date
   if(subject.trim().length === 0){
     subject = date;
-  }  
-  
+  }
+
   litmus.run(emailData, subject.trim(), next);
 
 };
@@ -211,7 +251,7 @@ EmailBuilder.registerWithGrunt = function(grunt) {
   // ==========================================================================
 
   grunt.registerMultiTask(EmailBuilder.taskName, EmailBuilder.taskDescription, function() {
-    
+
     this.grunt = grunt;
 
     var task = new EmailBuilder(this);

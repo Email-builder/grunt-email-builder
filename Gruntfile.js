@@ -58,6 +58,10 @@ module.exports = function(grunt) {
             url      : 'https://yoursite.litmus.com',
             applications : litmusClients
           },
+          emailTest : {
+            email : 'steven.jmiller@gmail.com',
+            subject : 'something'
+          }
         },
         files : testFiles
       },
@@ -82,6 +86,6 @@ module.exports = function(grunt) {
   // Default task.
   grunt.registerTask('default', 'emailBuilder:produce');
   grunt.registerTask('test',    ['jshint', 'clean', 'emailBuilder:produce', 'nodeunit']);
-  grunt.registerTask('litmus',  ['jshint', 'emailBuilder:test',    'nodeunit']);
+  grunt.registerTask('litmus',  ['jshint', 'emailBuilder:test', 'nodeunit']);
 
 };
