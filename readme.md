@@ -149,15 +149,20 @@ Thanks for helping out:
 [Juice](https://github.com/LearnBoost/juice) for compiling.
 
 ## Release History
+
+### [2.0.0](https://github.com/yargalot/Email-Builder/issues?milestone=1&page=1&state=closed)
+- Send yourself a test email with options.emailTest
+- Update to grunt 4.4
+- Update Dependencies
+- Change gruntfile to coffeescript
+
+### Previous Updates
 - 1.1.5 Allow options.litmus to run multiple tests
 - 1.1.0 Added options.doctype and options.encodeSpecialChars.
 - 1.0.0 Removed data-placement attribute in place of data-ignore. Improved options.litmus to send new versions of existing tests instead of creating new test.
 - 0.0.3 Inline css from style tags
 - 0.0.22 Bug Fixes
 - 0.0.2 Upgrade to grunt 0.4
-
-## Todo
-- [Sendgrid Intergration](https://github.com/sendgrid/sendgrid-nodejs)
 
 ## License
 Copyright (c) 2013 Steven Miller
