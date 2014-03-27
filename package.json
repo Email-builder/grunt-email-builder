@@ -32,14 +32,14 @@
     "gruntplugin"
   ],
   "devDependencies": {
-    "grunt": "~0.4.2",
+    "grunt": "~0.4.4",
     "grunt-contrib-nodeunit": "~0.2.2",
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-clean": "~0.5.0"
   },
   "peerDependencies": {
-    "grunt": "~0.4.2"
+    "grunt": "~0.4.4"
   },
   "dependencies": {
     "nodemailer": "~0.6.0",
