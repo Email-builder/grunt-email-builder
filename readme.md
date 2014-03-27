@@ -45,6 +45,23 @@ To prevent styles from being inlined, use the `data-ignore` attribute on embedde
 
 ###Options
 
+**options.emailTest**
+
+Type: ``Object``
+
+Send yourself a test email
+
+```javascript
+  emailTest : {
+
+    // Your Email
+    email : 'yourEmail@email.com'
+
+    // Your email Subject
+    subject : 'Email Subject'
+  }
+```
+
 **options.litmus**
 
 Type: ``Object``
@@ -71,6 +88,7 @@ litmus : {
   applications : ['gmailnew', 'hotmail', 'outlookcom', 'ol2000', 'ol2002', 'ol2003', 'ol2007', 'ol2010','ol2011', 'ol2013', 'appmail6','iphone4', 'iphone5', 'ipad3']
 }
 ```
+
 **options.doctype**
 
 Type: ```Boolean``` Default: ```true```
@@ -138,8 +156,7 @@ Thanks for helping out:
 - 0.0.22 Bug Fixes
 - 0.0.2 Upgrade to grunt 0.4
 
-## Todo 
-- NodeMailer intergration
+## Todo
 - [Sendgrid Intergration](https://github.com/sendgrid/sendgrid-nodejs)
 
 ## License

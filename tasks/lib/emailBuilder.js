@@ -69,7 +69,7 @@ EmailBuilder.prototype.run = function(grunt) {
       grunt.log.writeln('Sending test email to ' + _that.options.emailTest.email);
 
       var mailOptions = {
-        from: 'no-reply@test.com',
+        from: _that.options.emailTest.email,
         to: _that.options.emailTest.email,
         subject: _that.options.emailTest.subject,
         text: '',
@@ -202,22 +202,6 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
   }
 
 };
-
-// EmailBuilder.prototype.mailTest = function(output) {
-
-//   var grunt = this.task.grunt;
-
-//   grunt.log.writeln('Sending Test Email');
-
-//   nodeMail({
-//     from: 'no-reply@test.com',
-//     to: this.options.emailTest.email,
-//     subject: this.options.emailTest.subject,
-//     text: '',
-//     html: output
-//   });
-
-// };
 
 EmailBuilder.prototype.litmus = function(emailData, next) {
 
