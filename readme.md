@@ -23,13 +23,22 @@ grunt.loadNpmTasks('grunt-email-builder');
 
 Place this in your grunt file.
 ```javascript
- emailBuilder: {
+emailBuilder: {
   test :{
     files : {
       'dest/ouput.html' : 'src/input.html'
     }
   }
 }
+```
+
+To build your files [dynamically](http://gruntjs.com/configuring-tasks#building-the-files-object-dynamically)
+```javascript
+files : [{
+  expand: true,
+  src: ['**/*.html'],
+  dest: 'dest/',
+}]
 ```
 
 To prevent styles from being inlined, use the `data-ignore` attribute on embedded or external styles. Otherwise, all styles will be inlined. External styles with the `data-ignore` attribute will be embedded in their own `<style>` tag within the src document.
