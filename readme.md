@@ -64,7 +64,7 @@ Send yourself a test email
   emailTest : {
 
     // Your Email
-    email : 'yourEmail@email.com'
+    email : 'yourEmail@email.com',
 
     // Your email Subject
     subject : 'Email Subject'
