@@ -70,7 +70,7 @@ Litmus.prototype.getId = function(body) {
 // Send a new version if id is availabe otherwise send a new test
 Litmus.prototype.sendTest = function(id) {
   var self = this;
-  var opts = this.reqObj;
+  var opts = _.clone(this.reqObj);
 
   opts.headers = { 'Content-type': 'application/xml', 'Accept': 'application/xml' };
   opts.body = this.getBuiltXml(this.html, this.title);
