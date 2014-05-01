@@ -20,7 +20,6 @@ var juice     = require('juice'),
 
 
 function EmailBuilder(task) {
-
   this.task     = task;
   this.options  = task.options(EmailBuilder.Defaults);
   this.basepath = process.cwd();
@@ -36,6 +35,7 @@ EmailBuilder.Defaults         = {};
 EmailBuilder.prototype.run = function(grunt) {
 
   var _that = this;
+
 
   async.eachSeries(this.task.files, function(file, next) {
 
@@ -205,11 +205,13 @@ EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 
 EmailBuilder.prototype.litmus = function(emailData, next) {
 
-  var litmus  = new Litmus(this.options.litmus),
-      date    = this.task.grunt.template.today('yyyy-mm-dd'),
-      subject = this.options.litmus.subject,
-      $       = this.$,
-      $title  = $('title').text().trim();
+  var litmus    = new Litmus(this.options.litmus),
+      date      = this.task.grunt.template.today('yyyy-mm-dd'),
+      subject   = this.options.litmus.subject,
+      $         = this.$,
+      $title    = $('title').text().trim(),
+      files     = this.task.filesSrc,
+      titleDups = {};
 
   if( (subject === undefined) || (subject.trim().length === 0) ){
     subject = $title;
@@ -218,6 +220,21 @@ EmailBuilder.prototype.litmus = function(emailData, next) {
   // If no subject or title then set to date
   if(subject.trim().length === 0){
     subject = date;
+  }
+
+  // Add +1 if duplicate titles exists
+  if(files.length > 1){
+
+    if(titleDups[subject] === undefined){
+      titleDups[subject] = [];
+    }else{
+      titleDups[subject].push(html);
+    }
+    
+    if(titleDups[subject].length){
+      subject = subject + ' - ' + parseInt(titleDups[subject].length + 1, 10);
+    }
+
   }
 
   litmus.run(emailData, subject.trim(), next);
