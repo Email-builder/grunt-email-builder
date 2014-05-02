@@ -164,6 +164,8 @@ Thanks for helping out:
 ## Release History
 
 2.0.1
+- Using juice2 which is an up-to-date version of juice
+- Removing options.doctype because juice2 handles this
 - Added options.delay
 - Added more logging information about a test. Fixes [#16](https://github.com/yargalot/Email-Builder/issues/16)
 - Handles tests with duplicate names a little better by adding +1 to duplicate title
