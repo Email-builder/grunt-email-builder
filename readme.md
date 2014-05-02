@@ -98,12 +98,6 @@ litmus : {
 }
 ```
 
-**options.doctype**
-
-Type: ```Boolean``` Default: ```true```
-
-If set to ```false```, Doctype will be stripped from dest file.
-
 **options.encodeSpecialChars**
 
 Type: ```Boolean``` Default: ```false```

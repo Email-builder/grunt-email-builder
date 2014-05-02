@@ -9,7 +9,7 @@
  */
 
  // Required modules
-var juice     = require('juice'),
+var juice     = require('juice2'),
     path      = require('path'),
     cheerio   = require('cheerio'),
     async     = require('async'),
@@ -40,10 +40,7 @@ EmailBuilder.prototype.run = function(grunt) {
   async.eachSeries(this.task.files, function(file, next) {
 
 
-    var fileData  = grunt.file.read(file.src),
-        reDoctype = /<!doctype.*?>/gi;
-
-    _that.doctype = fileData.match(reDoctype);
+    var fileData  = grunt.file.read(file.src);
 
     // Cheerio Init
     var $           = _that.$  = cheerio.load(fileData),
@@ -164,39 +161,17 @@ EmailBuilder.prototype.getLinkTags = function(styleLinks) {
 
 };
 
-// If doctype options is true, preserve doctype or add HTML5 doctype since jsdom removes it
-EmailBuilder.prototype.addDoctype = function(output) {
-
-  var doctyped = '',
-      dt       = this.doctype;
-
-  if ( this.options.doctype !== false ) {
-
-    if ( dt !== null ) {
-      doctyped = dt[0] + output;
-    } else {
-      doctyped = '<!DOCTYPE html>' + output;
-    }
-
-  } else {
-    doctyped = output;
-  }
-
-  return doctyped;
-
-};
 
 EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
 
-  var grunt     = this.task.grunt,
-      writeData = this.addDoctype(fileData);
+  var grunt     = this.task.grunt;
 
   grunt.log.writeln('Writing...'.cyan);
-  grunt.file.write(fileDest, writeData);
+  grunt.file.write(fileDest, fileData);
   grunt.log.writeln('File ' + fileDest.cyan + ' created.');
 
   if (this.options.litmus) {
-    this.litmus(writeData, nextFile);
+    this.litmus(fileData, nextFile);
   } else {
     nextFile();
   }
