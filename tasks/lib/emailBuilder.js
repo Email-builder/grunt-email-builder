@@ -16,13 +16,14 @@ var juice     = require('juice2'),
     mailer    = require('nodemailer'),
     encode    = require('./entityEncode'),
     Litmus    = require('./litmus'),
+    when      = require('when'),
+    fs        = require('fs'),
     transport = mailer.createTransport();
 
 
 function EmailBuilder(task) {
   this.task     = task;
   this.options  = task.options(EmailBuilder.Defaults);
-  this.basepath = process.cwd();
   this.done     = this.task.async();
 
 }
@@ -32,158 +33,75 @@ EmailBuilder.taskDescription  = 'Compile Files';
 EmailBuilder.Defaults         = {};
 
 
-EmailBuilder.prototype.run = function(grunt) {
+EmailBuilder.readFile = function(file){
 
-  var _that = this;
-
-
-  async.eachSeries(this.task.files, function(file, next) {
-
-
-    var fileData  = grunt.file.read(file.src);
-
-    // Cheerio Init
-    var $           = _that.$  = cheerio.load(fileData),
-        $styleTags  = $('style'),
-        $styleLinks = $('link');
-
-    // Read Css Files
-    var srcFiles    = _that.getLinkTags($styleLinks),
-        embeddedCss = _that.getStyleTags($styleTags),
-        externalCss = _that.getExternalCss(srcFiles, file.src),
-        allCss      = embeddedCss + externalCss;
-
-    // Get file output ready
-    var output      = allCss ? juice.inlineContent($.html(), allCss) : $.html();
-
-    // Encode special characters if option encodeSpecialChars is true
-    if (_that.options.encodeSpecialChars === true) {
-      output = encode.htmlEncode(output);
-    }
-
-    if (_that.options.emailTest) {
-
-      grunt.log.writeln('Sending test email to ' + _that.options.emailTest.email);
-
-      var mailOptions = {
-        from: _that.options.emailTest.email,
-        to: _that.options.emailTest.email,
-        subject: _that.options.emailTest.subject,
-        text: '',
-        html: output
-      };
-
-      transport.sendMail(mailOptions, function(error, response) {
-          response.statusHandler.once("sent", function(data){
-            console.log("Message was accepted by %s", data.domain);
-            _that.writeFile(file.dest, output, next);
-          });
-      });
-
-    } else {
-
-      _that.writeFile(file.dest, output, next);
-
-    }
-
-  }, function() {
-
-    _that.done();
-
+  var map = {};
+  return when.promise(function(resolve, reject, notify){
+    fs.readFile(file, function(err, data){
+      if(err){ reject(err); }
+      map.originalHtml = data;
+      map.file = file;
+      resolve(map);
+    });
   });
 };
 
 
-EmailBuilder.prototype.getExternalCss = function(files, fileSource) {
-
-  var externalCss = '',
-      grunt       = this.task.grunt,
-      $           = this.$;
-
-  // Set to target file path to get css
-  grunt.file.setBase(path.dirname(fileSource));
-
-  files.forEach(function(srcFile) {
-    var css = grunt.file.read(srcFile.file);
-
-    if(srcFile.inline) {
-      externalCss += css;
-    } else {
-      $('head').append('<style>' + css + '</style>');
-    }
-  });
-
-  // Set cwd back to root folder
-  grunt.file.setBase(this.basepath);
-
-  return externalCss;
-
-};
-
-
-EmailBuilder.prototype.getStyleTags = function(styleTags) {
-
-  var $   = this.$,
-      css = '';
-
-  styleTags.each(function(i, element){
+EmailBuilder.grabIgnoreStyles = function(map){
+  var $ = cheerio.load(map.originalHtml.toString());
+  var styles = $('style');
+  map.ignoreStyles = '';
+  styles.each(function(){
     var $this = $(this);
+    if($this.attr('data-ignore')){
+      map.ignoreStyles += $this.text();
+    }
+  });
+  return when.resolve(map);
+};
 
-    if(!$this.attr('data-ignore')) {
-      css += $this.text();
-      $this.remove();
+EmailBuilder.addIgnoreStyles = function(map){
+  var closingHead = /(<\/head>)/g;
+  map.finalHtml = map.finalHtml.replace(closingHead, '<style type="text/css">' + map.ignoreStyles + '</style>\n$1');
+  return when.resolve(map);
+};
+
+EmailBuilder.writeFile = function(grunt, map, ctx){
+  ctx.task.files.forEach(function(file, i, arr){
+
+    var fileObj = ctx.task.files[i];
+
+    if(fileObj.src.toString() === map.file){
+      grunt.log.writeln('Writing...'.cyan);
+      grunt.file.write(fileObj.dest, map.finalHtml);
+      grunt.log.writeln('File ' + fileObj.dest.cyan + ' created.');
+
     }
   });
 
-  return css;
-
+  return when.resolve(map);
 };
 
+EmailBuilder.prototype.inlineCss = function(map){
 
-EmailBuilder.prototype.getLinkTags = function(styleLinks) {
+  var self = this;
 
-  var $            = this.$,
-      linkedStyles = [];
-
-  styleLinks.each(function(i, link) {
-    var $this  = $(this),
-        target = $this.attr('href'),
-        map = {
-          file: target,
-          inline: $this.attr('data-ignore') ? false : true
-        };
-
-    linkedStyles.push(map);
-    $this.remove();
+  return when.promise(function(resolve, reject){
+    juice(map.file, self.options ,function(err,html){
+      if(err) { reject(err); }
+      map.finalHtml = html;
+      resolve(map);
+    });
   });
-
-  return linkedStyles;
-
 };
 
 
-EmailBuilder.prototype.writeFile = function(fileDest, fileData, nextFile) {
-
-  var grunt     = this.task.grunt;
-
-  grunt.log.writeln('Writing...'.cyan);
-  grunt.file.write(fileDest, fileData);
-  grunt.log.writeln('File ' + fileDest.cyan + ' created.');
-
-  if (this.options.litmus) {
-    this.litmus(fileData, nextFile);
-  } else {
-    nextFile();
-  }
-
-};
-
-EmailBuilder.prototype.litmus = function(emailData, next) {
+EmailBuilder.prototype.sendLitmus = function(html) {
 
   var litmus    = new Litmus(this.options.litmus),
       date      = this.task.grunt.template.today('yyyy-mm-dd'),
       subject   = this.options.litmus.subject,
-      $         = this.$,
+      $         = cheerio.load(html),
       $title    = $('title').text().trim(),
       files     = this.task.filesSrc,
       titleDups = {};
@@ -212,8 +130,51 @@ EmailBuilder.prototype.litmus = function(emailData, next) {
 
   }
 
-  litmus.run(emailData, subject.trim(), next);
+  litmus.run(html, subject.trim());
+};
 
+
+EmailBuilder.prototype.sendEmailTest = function(grunt, html) {
+  grunt.log.writeln('Sending test email to ' + this.options.emailTest.email);
+
+  var mailOptions = {
+    from: this.options.emailTest.email,
+    to: this.options.emailTest.email,
+    subject: this.options.emailTest.subject,
+    text: '',
+    html: html
+  };
+
+  transport.sendMail(mailOptions, function(error, response) {
+      response.statusHandler.once("sent", function(data){
+        console.log("Message was accepted by %s", data.domain);
+      });
+  });
+};
+
+
+EmailBuilder.prototype.run = function(grunt) {
+
+  var self = this;
+
+  when.map(this.task.filesSrc, function(data){
+    return EmailBuilder.readFile(data)
+      .with(self)
+      .then(EmailBuilder.grabIgnoreStyles)
+      .then(self.inlineCss)
+      .then(EmailBuilder.addIgnoreStyles)
+      .then(function(data){
+        EmailBuilder.writeFile(grunt, data, self);
+        return data;
+      })
+      .then(function(data){
+        if(self.options.litmus){ self.sendLitmus(data.finalHtml); } 
+        if(self.options.emailTest){ self.sendEmailTest(grunt, data.finalHtml); }
+        return data;
+      })
+      .catch(function(err){ grunt.log.error(err); });
+  });
+  
 };
 
 
