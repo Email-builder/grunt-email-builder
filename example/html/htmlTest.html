@@ -1,30 +1,721 @@
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title></title>
-    <link rel="stylesheet" href="../css/inline.css" type="text/css" />
-    <link rel="stylesheet" data-ignore="ignore"  href="../css/style.css" type="text/css" />
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <title>Pegasys - TEST</title>
+  <style type="text/css">
+    /***************************************
+                GLOBAL STYLES
+    ****************************************/
+      body, #backgroundTable { background-color: #dfdfdf;}
 
-  </head><!--[if IEMobile 7]>
-  <style type="text/css"></style><![endif]--><!--[if gte mso 9]>
-  <style></style><![endif]-->
-  <body>
-    <table id="backgroundTable" cellpadding="0" cellspacing="0" border="0">
-      <tr>
-        <td class="green" valign="top">GREEN TEXT</td>
-        <table cellpadding="0" cellspacing="0" border="0" align="center">
+      td { 
+        font-family: helvetica, arial, sans-serif; 
+        font-size: 12px;
+      }
+
+      a, .webversion { color: #ab1f26; }
+
+      .h1, 
+      .h2, 
+      .h3,
+      .h4 { font-weight: bold; line-height: 120%; }
+
+      .h1 { font-size: 18px; color: #004791; }
+      .h2 { font-size: 16px; color: #004791; padding-top: 20px; }
+      .h3 { font-size: 12px; padding: 30px 0 5px 0;}
+      .h4 { font-size: 16px; padding-bottom: 5px; font-weight: normal;}
+
+      .p,
+      .ul {
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+
+      .p,
+      .ul td { line-height: 16px; }
+
+      .ul .li { padding-right: 5px; width: 1px; color: #fbaa39; font-size: 16px; }
+
+      .ul .sub { padding-left: 10px; }
+
+      .hr {
+        background-color: #d5d5d5;
+        display: block;
+        font-size: 0px;
+        height: 1px;
+        line-height: 0px;
+        padding: 0;
+      }
+      /* horizontal rule */
+
+      .figcaption, 
+      .figcaption td, 
+      .footnote, 
+      .footnote td { font-size: 10px; }
+
+      sup { line-height: 0; font-size: 75%; }
+      .linkDivider { font-weight: lighter; padding-left: 6px; padding-right: 6px; }
+      .border { border: 1px solid #000000; }
+      .underline { text-decoration: underline; }
+      .bold { font-weight: bold; }  
+
+      .legal, .address { padding: 10px 0;}
+      .image { padding-top: 5px;}
+      
+    /***************************************
+                 SPACING STYLES 
+    ****************************************/
+
+      .p0   { padding-top:0;padding-right:0;padding-bottom:0;padding-left:0; }
+      .p5   { padding-top:5px;padding-right:5px;padding-bottom:5px;padding-left:5px; }
+      .p10  { padding-top:10px;padding-right:10px;padding-bottom:10px;padding-left:10px; }
+      .p15  { padding-top:15px;padding-right:15px;padding-bottom:15px;padding-left:15px; }
+      .p20  { padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px; }
+      .p25  { padding-top:25px;padding-right:25px;padding-bottom:25px;padding-left:25px; }
+      .p30  { padding-top:30px;padding-right:30px;padding-bottom:30px;padding-left:30px; }
+      /* zero padding on all side*/
+
+      .ptb0  { padding-top:0;padding-bottom:0; }
+      .ptb5  { padding-top:5px;padding-bottom:5px; }
+      .ptb10 { padding-top:10px;padding-bottom:10px; }
+      .ptb15 { padding-top:15px;padding-bottom:15px; }
+      .ptb20 { padding-top:20px;padding-bottom:20px; }
+      .ptb25 { padding-top:25px;padding-bottom:25px; }
+      .ptb30 { padding-top:30px;padding-bottom:30px; }
+      /* Padding top and bottom */
+
+      .prl0  { padding-right:0;padding-left:0; }
+      .prl5  { padding-right:5px;padding-left:5px; }
+      .prl10 { padding-right:10px;padding-left:10px; }
+      .prl15 { padding-right:15px;padding-left:15px; }
+      .prl20 { padding-right:20px;padding-left:20px; }
+      .prl25 { padding-right:25px;padding-left:25px; }
+      .prl30 { padding-right:30px;padding-left:30px; }
+      /* Padding left and right */
+
+      .pt0  { padding-top: 0px; }
+      .pt5  { padding-top: 5px; }
+      .pt10 { padding-top: 10px; } 
+      .pt15 { padding-top: 15px; } 
+      .pt20 { padding-top: 20px; } 
+      .pt25 { padding-top: 25px; }
+      .pt30 { padding-top: 30px; }
+      .pt40 { padding-top: 40px; }
+      /* padding top */
+
+      .pr0  { padding-right: 0px; } 
+      .pr5  { padding-right: 5px; }  
+      .pr10 { padding-right: 10px; }
+      .pr15 { padding-right: 15px; }
+      .pr20 { padding-right: 20px; }
+      .pr25 { padding-right: 25px; }
+      .pr30 { padding-right: 30px; }
+      /* padding right */
+
+      .pb5  { padding-bottom: 5px; }
+      .pb0  { padding-bottom: 0px; } 
+      .pb10 { padding-bottom: 10px; }
+      .pb15 { padding-bottom: 15px; }
+      .pb20 { padding-bottom: 20px; }
+      .pb25 { padding-bottom: 25px; }
+      .pb30 { padding-bottom: 30px; }
+      /* padding bottom */
+
+      .pl0  { padding-left: 0px; }
+      .pl5  { padding-left: 5px; }
+      .pl10 { padding-left: 10px; }
+      .pl15 { padding-left: 15px; }
+      .pl20 { padding-left: 20px; }
+      .pl25 { padding-left: 25px; }
+      .pl30 { padding-left: 30px; }
+      /* padding left */
+
+    /***************************************
+            CLIENT SPECIFIC STYLES
+    ****************************************/
+
+    .m-hide table { mso-hide: all; }
+    /* Usesd to hide elements in Outlook 2007/2010 for mobile  */
+
+    .m-hide td{ display: none; font-size: 0; height: 0; line-height: 0; padding: 0; }
+    /* Usesd to hide elements for mobile */  
+
+    #outlook a {padding:0;} 
+    /* Force Outlook to provide a "view in browser" menu link. */
+
+    body{width:100% !important; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; margin:0; padding:0;} 
+    /* Prevent Webkit and Windows Mobile platforms from changing default font sizes.*/ 
+
+    .ExternalClass {width:100%;} 
+    /* Force Hotmail to display emails at full width */  
+
+    .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height: 100%;}
+    /* Forces Hotmail to display normal line spacing.  More on that: http://www.emailonacid.com/forum/viewthread/43/ */
+
+    .yshortcuts { color: inherit; border-bottom: none !important;} 
+     /* Yahoo fix for shortcuts*/
+
+    #backgroundTable {margin:0; padding:0; width:100% !important; line-height: 100% !important;}
+    /* end reset */
+
+    img {display:block; outline:none; text-decoration:none; -ms-interpolation-mode: bicubic;} 
+    a img {border:none;} 
+    /* Some sensible defaults for images*/
+
+    /* Outlook 07, 10 Padding issue fix
+    Bring inline: No.*/
+    table td {border-collapse: collapse;}
+
+    /***************************************
+               MOBILE STYLES
+    ****************************************/
+
+    /* Use body[yahoo] before elements because yahoo ignores media queries */
+    /* !important is used to override inline css */
+
+    @media only screen and (max-width: 600px){
+
+      body[yahoo] .block, body[yahoo] .content, body[yahoo] .safety { display: block;}
+
+      body[yahoo] .hide {display:none !important;}
+      /* Hide elements at smaller screen sizes */
+
+      body[yahoo] img { max-width: 100% !important; height: auto !important}
+
+      body[yahoo] .h1 { font-size:130% !important; }
+      body[yahoo] .h2 { font-size:120% !important; }
+      body[yahoo] .h3 { font-size:110% !important; }
+
+      body[yahoo] td, body[yahoo] td a { font-size: 100% !important; line-height: 150% !important; }
+
+      body[yahoo] .main-table { width:480px !important; }
+      /* Adjust table widths at smaller screen sizes. */
+
+      body[yahoo] .inner-table { width:460px !important; }
+      /* Adjust table widths at smaller screen sizes. */
+
+      body[yahoo] .m-hide img{height:auto !important;width:auto !important;}
+      /* Turn images back on */
+
+      body[yahoo] .m-hide td, body[yahoo] .m-hide table{
+        line-height: 150% !important;
+        height: auto !important;
+        font-size: 100% !important;
+        padding: 3px 0 !important;
+        display:block !important;
+      }
+      /* Display hidden elements */
+
+      body[yahoo] .footnote { font-size: 80% !important; }
+      body[yahoo] .callout { background-size: 100% !important; font-size: 76% !important; height: 64px !important; }
+
+    }
+  </style>
+
+</head>
+<body yahoo="fix">
+
+  <table border="0" cellpadding="0" cellspacing="0" id="backgroundTable">
+
+    <tr>
+      <td>
+
+        <table bgcolor="#ffffff" class="main-table" align="center" border="0" cellpadding="0" cellspacing="0" width="608">
+
           <tr>
-            <td class="blue" width="200" valign="top">HERP DERP</td>
-            <td width="200" valign="top">
-              <p class="blue">THIS IS SOME BLUE TEXT TO TEST</p>
+
+            <td class="hide" bgcolor="#d6d6d6" width="1"></td>
+            <td class="hide" bgcolor="#cccccc" width="1"></td>
+            <td class="hide" bgcolor="#bfbfbf" width="1"></td>
+            <td class="hide" bgcolor="#aeaeae" width="1"></td>
+            <!-- End Left Gradient -->
+
+            <td class="" style="border-top:1px solid #d6d6d6; border-bottom: 1px solid #d6d6d6;">
+              <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+
+      <!-- Start Web Version -->
+                <tr>
+                  <td>
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td class="image pt0">
+                          <img src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/header-bg.gif" width="600" height="89"/>
+                        </td>
+                      </tr>
+                      <!-- end image -->
+                      <tr>
+                        <td class="pt10" align="center">
+                          <webversion class="webversion">
+                            <span>view web and mobile version </span>
+                          </webversion>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+      <!-- End Web Version -->
+
+      <!-- Start Content -->
+                <tr>
+                  <td class="content">
+                    <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="560">
+
+                      <tr>
+                        <td>
+                          <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          
+                            <tr>
+                              <td class="image">
+                                <img src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/callout-orange.gif " alt="The CDC recommends one-time HCV testing for adults born between 1945 and 1965, regardless of other risk factors for HCV&#185;" width="554" height="76"/>
+                              </td>
+                            </tr>
+                            <!-- end image --> 
+                            
+                          </table> 
+                          <!-- END TABLE BLOCK -->
+                          
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td class="footnote">CDC, Centers for Disease Control and Prevention.*</td>
+                      </tr>
+                      <!-- end footnote -->
+
+                      <tr>
+                        <td class="p pt30">For additional information on Hepatitis C and testing, <a href="http://www.gnedownload.com/CDC/GEPE1234_CDC_MiniDeck_V31_LOCKED.pptx?c=[MEDIA_ORIG_CD]&moc=[MEDIA_ORIG_CD]&cid=" target="_blank">download a presentation</a>:</td>
+                      </tr>
+                      <!-- end paragraph -->
+
+                      <tr>
+                        <td class="h1 pt20 pb10">A new public health screening initiative has been developed for hepatitis C virus (HCV)</td>
+                      </tr>
+                      <!-- end h1 header -->
+
+                      <tr>
+                        <td class="ul">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td class="li pt0" valign="top">&#8226;</td>
+                              <td class="pt0">HCV infection is a substantial health problem<sup>1</sup></td>
+                            </tr>
+                            <tr>
+                              <td class="li pt10" valign="top">&#8226;</td>
+                              <td class="pt10">HCV is a leading cause of cirrhosis, hepatocellular cancer, and liver transplantation<sup>1,2</sup></td>
+                            </tr>
+                            <tr>
+                              <td class="li pt10" valign="top">&#8226;</td>
+                              <td class="pt10">There is a potential for diagnosis at earlier stages of disease<sup>1</sup></td>
+                            </tr>
+                            <tr>
+                              <td class="li pt10" valign="top">&#8226;</td>
+                              <td class="pt10">Testing for HCV infection is readily available, minimally invasive, and reliable<sup>1</sup></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- end unordered list -->
+
+                      <tr>
+                        <td class="pt15 pb10">
+                          <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="554">
+                          
+                            <tr>
+                              <td class="callout" background="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/callout-blank.gif" width="554" height="76">
+                                <!--[if gte mso 9]>
+                                <v:image xmlns:v="urn:schemas-microsoft-com:vml" id="theImage" 
+                                style='behavior: url(#default#VML); 
+                                display:inline-block;
+                                position:absolute; 
+                                height:76px; 
+                                width:554px;
+                                top:0;
+                                left:0;
+                                border:0;
+                                z-index:1;' 
+                                src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/callout-blank.gif"/>
+                                
+                                <v:shape xmlns:v="urn:schemas-microsoft-com:vml" id="theText" 
+                                style='behavior: url(#default#VML); 
+                                display:inline-block;
+                                position:absolute; 
+                                height:76px; 
+                                width:554px;
+                                top:17px;
+                                left:0;
+                                border:0;
+                                z-index:2;'>
+                                <![endif]-->
+                                <!-- This is where you nest a table with the content that will float over the image -->
+                                
+                                  <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="554">
+                                  
+                                    <tr>
+                                      <td class="p pl20" style="font-size: 16px; font-weight: bold;">Benefits of testing may include facilitation of earlier access to care<sup>1</sup></td>
+                                    </tr>
+                                    <!-- end paragraph --> 
+                                    
+                                  </table> 
+                                  <!-- END TABLE BLOCK -->
+                                  
+                                
+                                <!-- This ends the nested table content -->
+                                <!--[if gte mso 9]>
+                                </v:shape>
+                                <![endif]-->
+                              </td>
+                            </tr>
+                            
+                          </table> 
+                          <!-- END TABLE BLOCK -->
+                          
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td class="h2 pb10">Evidence suggests highest prevalence of HCV among adults born between 1945 and 1965: The Baby Boomers<sup>1</sup></td>
+                      </tr>
+                      <!-- end h2 header -->
+
+                      <tr>
+                        <td>
+                          <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          
+                            <tr>
+                              <td>
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                
+                                  <tr>
+                                     <td class="image">
+                                       <img src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/prevalence-chart2.gif" alt="prevalence-chart" width="261" height="217"/>
+                                     </td>
+                                   </tr>
+                                   <!-- end image --> 
+                                  
+                                </table> 
+                                <!-- END TABLE BLOCK -->
+                                
+                              </td>
+                              <td>
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                
+                                  <tr>
+                                     <td class="image">
+                                       <img src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/callout-3.gif" alt="prevalence-button" width="215" height="217"/>
+                                     </td>
+                                   </tr>
+                                   <!-- end image --> 
+                                  
+                                </table> 
+                                <!-- END TABLE BLOCK -->
+                                
+                              </td>
+                            </tr>
+                            
+                          </table> 
+                          <!-- END TABLE BLOCK -->
+                          
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td class="footnote pt10 pb25">Adapted from CDC <em>MMWR Recommendations and Reports 2012</em> Vol. 61/No.4.<br /> NHANES, National Health and Nutrition Examination Survey.</td>
+                      </tr>
+                      <!-- end footnote -->
+
+                      <tr>
+                        <td class="image">
+                          <img src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/callout-4.gif" alt="More than 75% of adults with chronic HCV infection were born between 1945 and 1965&#185;" width="554" height="76"/>
+                        </td>
+                      </tr>
+                      <!-- end image -->
+
+                      <tr>
+                        <td class="h2 pb10">Updated recommendations expand HCV testing to include patient age&#8212;adults born between 1945 and 1965<sup>1</sup></td>
+                      </tr>
+                      <!-- end h2 header -->
+
+                      <tr>
+                        <td class="ul">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td class="li" valign="top">&#8226;</td>
+                              <td>All persons diagnosed with HCV should be evaluated for follow-up care as determined by their healthcare provider<sup>1</sup></td>
+                            </tr>
+                            <tr>
+                              <td class="li pt10" valign="top">&#8226;</td>
+                              <td class="pt10">The CDC states that the targeted birth-year approach could potentially impact HCV-related morbidity and mortality<sup>1</sup></td>
+                            </tr>
+                            <tr>
+                              <td class="li pt10" valign="top">&#8226;</td>
+                              <td class="pt10">2012 recommendations by the CDC augment, but do not replace, existing risk-based testing guidelines<sup>1*</sup></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- end unordered list -->
+
+                      <tr>
+                        <td class="footnote pt5">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td class="sup" valign="top">*</td>
+                              <td>Prior to 2012, testing was based solely on risk factors: HIV infection; current or prior history of injection drug use; select medical conditions, including long-term hemodialysis, persistently abnormal alanine aminotransferase levels, or receiving clotting factor concentrates produced before 1987; recipients of transfusions or organ transplants prior to July 1992; needlestick, sharps, or mucosal exposures to HCV-positive blood in healthcare, emergency medical, or public safety work environment; or children born to an HCV-positive woman.</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- end footnote list -->
+
+                      <tr>
+                        <td class="h2 pb10">Importance of identifying adults with undiagnosed HCV infection</td>
+                      </tr>
+                      <!-- end h2 header -->
+
+                      <tr>
+                        <td class="p">Reports suggest varying ranges for the rate of fibrosis progression and cirrhosis:</td>
+                      </tr>
+                      <!-- end paragraph -->
+
+                      <tr>
+                        <td class="ul">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td class="li" valign="top">&#8226;</td>
+                              <td>A modeling analysis of 111 studies including a total of 33,121 patients with chronic HCV found<sup>3</sup>:</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- end unordered list -->
+
+                      <tr>
+                        <td>
+                          <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          
+                            <tr>
+                               <td class="ul pt5">
+                                 <table border="0" cellpadding="0" cellspacing="0">
+                                   <tr>
+                                     <td class="bullet pl10" valign="top" style="font-size: 18px;">&#9702;</td>
+                                     <td class="pl5">Fibrosis progression is not linear</td>
+                                   </tr>
+                                 </table>
+                             
+                                 <table border="0" cellpadding="0" cellspacing="0">
+                                   <tr>
+                                     <td class="subBullet pl30" valign="top">&#8211;</td>
+                                     <td class="pl10">The rate of progression was estimated to be higher from stage F0 to F1 than from stage F1 to F2<sup>&#8224;</sup></td>
+                                   </tr>
+                                   <tr>
+                                     <td class="subBullet pl30" valign="top">&#8211;</td>
+                                     <td class="pl10">The most rapid rate of progression was found from stage F2 to F3<sup>&#8224;</sup></td>
+                                   </tr>
+                                 </table>
+                               </td>
+                             </tr>
+                             <!-- end unordered list with sub-list --> 
+                            
+                          </table> 
+                          <!-- END TABLE BLOCK -->
+                          
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td class="footnote">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td class="sup" valign="top"><sup>&#8224;</sup></td>
+                              <td>Based on the random effects model, 95% confidence intervals reported for the estimated annual mean stage-specific transition probabilities were: F0&#8594;F1 0.117 (0.104-0.130); F1&#8594;F2 0.085 (0.075-0.096); F2&#8594;F3 0.120 (0.109-0.133); and F3&#8594;F4 0.116 (0.104-0.129).</td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- end footnote list -->
+
+                      <tr>
+                        <td class="p pt15 pb0"><strong>The cumulative probability of cirrhosis increases with number of years postinfection<sup>3</sup></strong></td>
+                      </tr>
+                      <!-- end paragraph -->
+
+                      <tr>
+                        <td class="image pb0">
+                          <img src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/probability-chart.gif" alt="probability-chart" width="377" height="210"/>
+                        </td>
+                      </tr>
+                      <!-- end image -->
+
+                      <tr>
+                        <td class="footnote pt0 pb5"><sup>&#8225;</sup>95% CI, 14%-19%. <br /><sup>&#167;</sup>95% CI, 36%-45%.</td>
+                      </tr>
+                      <!-- end footnote -->
+
+                      <tr>
+                        <td class="ul">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td class="li" valign="top">&#8226;</td>
+                              <td>The American Association for the Study of Liver Diseases guidelines state that the incidence of cirrhosis ranges from 5% to 25% over periods of 25 to 30 years<sup>4</sup></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- end unordered list -->
+
+                      <tr>
+                        <td class="h2 pb10">Clinical responsibility: Appropriate care of newly diagnosed HCV population</td>
+                      </tr>
+                      <!-- end h2 header -->
+
+                      <tr>
+                        <td class="ul">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td class="li" valign="top">&#8226;</td>
+                              <td>Hepatitis C is a leading cause of cirrhosis, hepatocellular cancer, and liver transplantation<sup>1,2</sup></td>
+                            </tr>
+                            <tr>
+                              <td class="li pt10" valign="top">&#8226;</td>
+                              <td class="pt10">The CDC states that the targeted birth-year approach could potentially impact HCV-related morbidity and mortality<sup>1</sup></td>
+                            </tr>
+                            <tr>
+                              <td class="li pt10" valign="top">&#8226;</td>
+                              <td class="pt10">Practitioners should be aware of existing factors that contribute to gaps in care for HCV-infected persons<sup>1</sup></td>
+                            </tr>
+                            <tr>
+                              <td class="li pt10" valign="top">&#8226;</td>
+                              <td class="pt10">Beyond testing, the CDC also recommends appropriate follow-up care of HCV and related conditions<sup>1</sup></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- end unordered list -->
+
+                      <tr>
+                        <td class="p ptb15">For additional information on Hepatitis C and testing, <a href="http://www.gnedownload.com/CDC/GEPE1234_CDC_MiniDeck_V31_LOCKED.pptx?c=[MEDIA_ORIG_CD]&moc=[MEDIA_ORIG_CD]&cid=" target="_blank">download a presentation</a>:</td>
+                      </tr>
+                      <!-- end paragraph -->
+
+                      <tr>
+                        <td class="p pb15"><strong>References:  1.</strong> Centers for Disease Control and Prevention. <em>MMWR Recomm Rep</em>. 2012;61(RR-4):1-32. <strong>2.</strong> Brown RS Jr, Gaglio PJ. <em>Liver Transpl</em>. 2003;911:S10-S13. <strong>3.</strong> Thein HH et al. <em>Hepatology</em>. 2008;48(2):418-431. <strong>4.</strong> Ghany MG et al. <em>Hepatology</em>. 2009;49(4):1335-1374.</td>
+                      </tr>
+                      <!-- end paragraph -->
+
+                    </table> 
+                  </td>
+                </tr>
+      <!-- End Content -->
+
+
+      <!-- Start Footer -->
+                 <tr>
+                   <td>
+                     <table class="inner-table" border="0" align="center" cellpadding="0" cellspacing="0" width="560">
+
+                        <tr>
+                          <td class="image ptb10">
+                            <img src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/logo-gene.gif" alt="Genentech" width="104" height="30" />
+                          </td>
+                        </tr>
+                        <!-- end image -->
+
+                        <tr>
+                          <td class="legal">
+                            <a href="http://www.gene.com/gene/privacy.html?c=[MEDIA_ORIG_CD]&moc=[MEDIA_ORIG_CD]&cid=" target="_blank">Privacy Policy</a>
+                            <span class="linkDivider">|</span>
+                            <a href="http://www.gene.com/gene/terms.html?c=[MEDIA_ORIG_CD]&moc=[MEDIA_ORIG_CD]&cid=" target="_blank">Terms &amp; Conditions</a>
+                            <span class="linkDivider">|</span>
+                            <a href="http://www.gene.com/gene/Inquiry.do?c=[MEDIA_ORIG_CD]&moc=[MEDIA_ORIG_CD]&cid=" target="_blank">Contact Genentech</a><sup>&#174;</sup>
+                          </td>
+                        </tr>
+                        <!-- end legal -->
+
+                        <tr>
+                          <td class="p">This e-mail is intended for US healthcare professionals only.</td>
+                        </tr>
+                        <!-- end paragraph -->
+
+                        <tr>
+                          <td class="p">&copy; 2013 Genentech USA, Inc. All rights reserved.</td>
+                        </tr>
+                        <!-- end paragraph -->
+
+                        <tr>
+                          <td class="ptb10">
+                            <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                            
+                              <tr>
+                                <td>
+                                  Genentech, Inc. <br />
+                                  1 DNA Way <br />
+                                  South&nbsp;San&nbsp;Francisco,&nbsp;CA <br />
+                                  94080-4990
+                                </td>
+                                <td class="footnote" align="right" valign="bottom">PEGXXXXXXXXXX</td>
+                              </tr>
+                              
+                            </table> 
+                            <!-- END TABLE BLOCK -->
+                            
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td class="p">To unsubscribe or manage your Genentech BioOncology communications, <a href="https://interactive.genentech.com/subscription/subscribers/[REF_NUM]/optout/index.html?shortLink=unsubscribe&productCode=[PROD_CD]&c=[MEDIA_ORIG_CD]&moc=[MEDIA_ORIG_CD]&cid=" target="_blank" style="color: #ab1f26;">click here</a>. </td>
+                        </tr>
+                        <!-- end paragraph -->
+
+                     </table> 
+                   </td>
+                 </tr>
+      <!-- End Footer -->
+
+                  <tr>
+                    <td>
+                      <table class="inner-table" align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+                      
+                        
+                        <tr>
+                          <td class="image">
+                            <img src="http://prod.ramp.gene.s3.amazonaws.com/pegasys/templates/cdc-guidelines-2012/footer-bg.gif" width="600" height="89" />
+                          </td>
+                        </tr>
+                        <!-- end image -->
+                        
+                      </table> 
+                      <!-- END TABLE BLOCK -->
+                      
+                    </td>
+                  </tr>
+
+              </table> 
             </td>
-            <td width="200" valign="top"><img src="full path to image" alt="Your alt text" title="Your title text" width="x" height="x" class="image_fix"/><span class="mobile_link">123-456-7890</span>
-            </td>
+
+            <td class="hide" bgcolor="#aeaeae" width="1"></td>
+            <td class="hide" bgcolor="#bfbfbf" width="1"></td>
+            <td class="hide" bgcolor="#cccccc" width="1"></td>
+            <td class="hide" bgcolor="#d6d6d6" width="1"></td>
+            <!-- End Right Gradient -->
+
           </tr>
+
         </table>
-      </tr>
-    </table>
-  </body>
+      </td>
+    </tr>
+
+    <!-- start unsubscribe hack (DO NOT DELETE CONTENT BELOW)-->
+    <tr class="singleline">
+      <td style="font-size: 0; line-height: 0; display: none; margin: 0; padding: 0;"><singleline style="font-size: 0; line-height: 0; display: none; margin: 0; padding: 0;"></singleline></td>
+    </tr>
+    <tr class="unsubscribe">
+      <td style="font-size: 0; line-height: 0; display: none; margin: 0; padding: 0;"><unsubscribe style="font-size: 0; line-height: 0; display: none; margin: 0; padding: 0;">&nbsp;</unsubscribe></td>
+    </tr>
+    <!-- end unsubscribe hack -->
+
+  </table>
+  <!-- end table wrapper -->
+</body>
 </html>
