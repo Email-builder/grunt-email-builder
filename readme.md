@@ -54,6 +54,8 @@ To prevent styles from being inlined, use the `data-ignore` attribute on embedde
 
 ###Options
 
+Can use any of the [Juice options](https://github.com/andrewrk/juice#juicefilepath-options-callback) along with the ones below
+
 **options.emailTest**
 
 Type: ``Object``
@@ -162,6 +164,10 @@ Thanks for helping out:
 [Juice](https://github.com/LearnBoost/juice) for compiling.
 
 ## Release History
+
+2.0.2
+- Can now pass in [Juice options](https://github.com/andrewrk/juice#juicefilepath-options-callback) into options config
+- Using Bluebird promise lib instead of async lib
 
 2.0.1
 - Using juice2 which is an up-to-date version of juice

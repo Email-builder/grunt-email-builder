@@ -52,6 +52,7 @@ EmailBuilder.prototype.prepareHtml = function(file) {
       ignoreStyles = '',
       self         = this;
 
+  // Grab styles from style tags with data-ignore attr
   styleTags.each(function(){
     var $this = $(this);
     if($this.attr('data-ignore')){
@@ -63,6 +64,7 @@ EmailBuilder.prototype.prepareHtml = function(file) {
   // Reset base to file path
   this.grunt.file.setBase(path.dirname(file));
 
+  // Grab styles from links with data-ignore attr
   linkTags.each(function(){
     var $this = $(this);
     
@@ -86,7 +88,8 @@ EmailBuilder.prototype.prepareHtml = function(file) {
 
 
 /**
-* Inlines css using juice2  
+* Inlines css using juice2 and adds the ignored styles back in after
+* css has been inlined
 *
 * @param {String} src - src file 
 * @param {String} dest - destination file
