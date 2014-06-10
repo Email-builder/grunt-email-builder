@@ -110,7 +110,7 @@ EmailBuilder.prototype.inlineCss = function(src, dest) {
   return juice.juiceContentAsync(prepHtml.html, this.options)
     .bind(this)
     .then(function(html){
-      html = html.replace(/<\/head>/gi, '<style type="text/css">' + prepHtml.ignoreStyles + '</style>');
+      html = html.replace(/(<\/head>)/gi, '<style type="text/css">' + prepHtml.ignoreStyles + '</style>$1');
       
       if(this.options.encodeSpecialChars) { html = encode.htmlEncode(html); }
 
