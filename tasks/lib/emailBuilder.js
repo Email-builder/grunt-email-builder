@@ -9,23 +9,24 @@
  */
 
  // Required modules
-var juice     = require('juice2'),
-    path      = require('path'),
+var path      = require('path'),
+    os        = require('os');
     cheerio   = require('cheerio'),
-    async     = require('async'),
     mailer    = require('nodemailer'),
     encode    = require('./entityEncode'),
     Litmus    = require('./litmus'),
-    when      = require('when'),
-    fs        = require('fs'),
+    Promise   = require('bluebird'),
+    juice     = Promise.promisifyAll(require('juice2')),
     transport = mailer.createTransport();
 
 
 function EmailBuilder(task) {
+
   this.task     = task;
   this.options  = task.options(EmailBuilder.Defaults);
+  this.basepath = process.cwd();
   this.done     = this.task.async();
-
+  this.grunt    = this.task.grunt;
 }
 
 EmailBuilder.taskName         = 'emailBuilder';
@@ -33,148 +34,227 @@ EmailBuilder.taskDescription  = 'Compile Files';
 EmailBuilder.Defaults         = {};
 
 
-EmailBuilder.readFile = function(file){
+/**
+* Prepare html to be inlined by extracting and removing any data-ignore styles  
+*
+* @param {String} file - src file to read 
+*
+* @returns {Object} ignoreStyles - styles from style tags/links that have data-ignore attribute
+* @returns {Object} html - the new html with any style tags/links 
+*/
 
-  var map = {};
-  return when.promise(function(resolve, reject, notify){
-    fs.readFile(file, function(err, data){
-      if(err){ reject(err); }
-      map.originalHtml = data;
-      map.file = file;
-      resolve(map);
-    });
-  });
-};
+EmailBuilder.prototype.prepareHtml = function(file) {
 
+  var html         = this.grunt.file.read(file),
+      $            = cheerio.load(html),
+      styleTags    = $('style'),
+      linkTags     = $('link'),
+      ignoreStyles = '',
+      self         = this;
 
-EmailBuilder.grabIgnoreStyles = function(map){
-  var $ = cheerio.load(map.originalHtml.toString());
-  var styles = $('style');
-  map.ignoreStyles = '';
-  styles.each(function(){
+  styleTags.each(function(){
     var $this = $(this);
     if($this.attr('data-ignore')){
-      map.ignoreStyles += $this.text();
+      ignoreStyles += $this.text();
+      $this.remove();
     }
-  });
-  return when.resolve(map);
-};
+  });    
 
-EmailBuilder.addIgnoreStyles = function(map){
-  var closingHead = /(<\/head>)/g;
-  map.finalHtml = map.finalHtml.replace(closingHead, '<style type="text/css">' + map.ignoreStyles + '</style>\n$1');
-  return when.resolve(map);
-};
+  // Reset base to file path
+  this.grunt.file.setBase(path.dirname(file));
 
-EmailBuilder.writeFile = function(grunt, map, ctx){
-  ctx.task.files.forEach(function(file, i, arr){
-
-    var fileObj = ctx.task.files[i];
-
-    if(fileObj.src.toString() === map.file){
-      grunt.log.writeln('Writing...'.cyan);
-      grunt.file.write(fileObj.dest, map.finalHtml);
-      grunt.log.writeln('File ' + fileObj.dest.cyan + ' created.');
-
+  linkTags.each(function(){
+    var $this = $(this);
+    
+    if($this.attr('data-ignore')){
+      var href = $this.attr('href');
+      ignoreStyles += self.grunt.file.read(href); 
+      $this.remove(); 
     }
   });
 
-  return when.resolve(map);
+  // Reset base to default
+  this.grunt.file.setBase(this.basepath);
+
+  return {
+    ignoreStyles: ignoreStyles,
+    html: $.html()
+  };
+
 };
 
-EmailBuilder.prototype.inlineCss = function(map){
 
-  var self = this;
 
-  return when.promise(function(resolve, reject){
-    juice(map.file, self.options ,function(err,html){
-      if(err) { reject(err); }
-      map.finalHtml = html;
-      resolve(map);
+/**
+* Inlines css using juice2  
+*
+* @param {String} src - src file 
+* @param {String} dest - destination file
+*
+* @returns {Object} a promise which resolves with an object literal containing 
+* the src file, destination file, and final html output
+* 
+*/
+
+EmailBuilder.prototype.inlineCss = function(src, dest) {
+
+  var slashes = os.platform() === 'win32' ? '\\\\' : '//',
+      url     = "file:" + slashes + path.join(this.basepath, src),
+      prepHtml = this.prepareHtml(src);
+
+  this.options.url = url;
+
+  return juice.juiceContentAsync(prepHtml.html, this.options)
+    .bind(this)
+    .then(function(html){
+      html = html.replace(/<\/head>/gi, '<style type="text/css">' + prepHtml.ignoreStyles + '</style>');
+      
+      if(this.options.encodeSpecialChars) { html = encode.htmlEncode(html); }
+
+      return { 
+        dest: dest,
+        html: html
+      };
+
     });
-  });
 };
 
+
+/**
+* Write final html output to file  
+*
+* @param {Object} map - object map  
+* @property {String} map.dest - destination file
+* @property {String} map.html - final html 
+*
+* @returns {String} final html to be passed to next promise 
+* 
+*/
+
+EmailBuilder.prototype.writeFile = function(map) {
+
+  this.grunt.log.writeln('Writing...'.cyan);
+  this.grunt.file.write(map.dest, map.html);
+  this.grunt.log.writeln('File ' + map.dest.cyan + ' created.');
+
+  return map.html;
+};
+
+
+/**
+* Send tests to Litmus App  
+*
+* @param {String} html - html to be sent   
+*
+* @returns {String} html to be passed to next promise 
+* 
+*/
 
 EmailBuilder.prototype.sendLitmus = function(html) {
 
-  var litmus    = new Litmus(this.options.litmus),
-      date      = this.task.grunt.template.today('yyyy-mm-dd'),
-      subject   = this.options.litmus.subject,
-      $         = cheerio.load(html),
-      $title    = $('title').text().trim(),
-      files     = this.task.filesSrc,
-      titleDups = {};
+  if(this.options.litmus){
+    var litmus    = new Litmus(this.options.litmus),
+        date      = this.task.grunt.template.today('yyyy-mm-dd'),
+        subject   = this.options.litmus.subject,
+        $         = cheerio.load(html),
+        $title    = $('title').text().trim(),
+        files     = this.task.filesSrc,
+        titleDups = {};
 
-  if( (subject === undefined) || (subject.trim().length === 0) ){
-    subject = $title;
-  }
-
-  // If no subject or title then set to date
-  if(subject.trim().length === 0){
-    subject = date;
-  }
-
-  // Add +1 if duplicate titles exists
-  if(files.length > 1){
-
-    if(titleDups[subject] === undefined){
-      titleDups[subject] = [];
-    }else{
-      titleDups[subject].push(html);
-    }
-    
-    if(titleDups[subject].length){
-      subject = subject + ' - ' + parseInt(titleDups[subject].length + 1, 10);
+    if( (subject === undefined) || (subject.trim().length === 0) ){
+      subject = $title;
     }
 
+    // If no subject or title then set to date
+    if(subject.trim().length === 0){
+      subject = date;
+    }
+
+    // Add +1 if duplicate titles exists
+    if(files.length > 1){
+
+      if(titleDups[subject] === undefined){
+        titleDups[subject] = [];
+      }else{
+        titleDups[subject].push(html);
+      }
+      
+      if(titleDups[subject].length){
+        subject = subject + ' - ' + parseInt(titleDups[subject].length + 1, 10);
+      }
+
+    }
+
+    litmus.run(html, subject.trim());
   }
 
-  litmus.run(html, subject.trim());
+  return html;
 };
 
 
-EmailBuilder.prototype.sendEmailTest = function(grunt, html) {
-  grunt.log.writeln('Sending test email to ' + this.options.emailTest.email);
 
-  var mailOptions = {
-    from: this.options.emailTest.email,
-    to: this.options.emailTest.email,
-    subject: this.options.emailTest.subject,
-    text: '',
-    html: html
-  };
+/**
+* Send an email test  
+*
+* @param {String} html - html to be sent   
+*
+* @returns {String} html to be passed to next promise 
+* 
+*/
 
-  transport.sendMail(mailOptions, function(error, response) {
-      response.statusHandler.once("sent", function(data){
-        console.log("Message was accepted by %s", data.domain);
-      });
-  });
+EmailBuilder.prototype.sendEmailTest = function(html) {
+
+  if(this.options.emailTest){
+    this.grunt.log.writeln('Sending test email to ' + this.options.emailTest.email);
+
+    var mailOptions = {
+      from: this.options.emailTest.email,
+      to: this.options.emailTest.email,
+      subject: this.options.emailTest.subject,
+      text: '',
+      html: html
+    };
+
+    transport.sendMail(mailOptions, function(error, response) {
+        response.statusHandler.once("sent", function(data){
+          console.log("Message was accepted by %s", data.domain);
+        });
+    });
+  }
+
+  return html;
+
 };
 
+
+
+/**
+* Run task
+*
+* @param {Object} grunt - grunt object   
+*
+* @returns {Object} a promise that resolves with final html
+* 
+*/
 
 EmailBuilder.prototype.run = function(grunt) {
 
-  var self = this;
+  var files = Promise.resolve(this.task.files);
 
-  when.map(this.task.filesSrc, function(data){
-    return EmailBuilder.readFile(data)
-      .with(self)
-      .then(EmailBuilder.grabIgnoreStyles)
-      .then(self.inlineCss)
-      .then(EmailBuilder.addIgnoreStyles)
-      .then(function(data){
-        EmailBuilder.writeFile(grunt, data, self);
-        return data;
-      })
-      .then(function(data){
-        if(self.options.litmus){ self.sendLitmus(data.finalHtml); } 
-        if(self.options.emailTest){ self.sendEmailTest(grunt, data.finalHtml); }
-        return data;
-      })
-      .catch(function(err){ grunt.log.error(err); });
-  });
-  
+  return files
+    .bind(this)
+    .map(function(fileMap){
+
+      var srcFile  = fileMap.src[0];
+      var destFile = fileMap.dest;
+      
+      return this.inlineCss(srcFile, destFile)
+        .then(this.writeFile)
+        .then(this.sendLitmus)
+        .then(this.sendEmailTest);
+
+    })
+    .catch(function(err){ this.grunt.log.error(err); });
 };
 
 
@@ -194,6 +274,7 @@ EmailBuilder.registerWithGrunt = function(grunt) {
     var task = new EmailBuilder(this);
 
     task.run(grunt);
+
   });
 };
 
