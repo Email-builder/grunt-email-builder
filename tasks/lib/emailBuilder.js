@@ -35,6 +35,47 @@ EmailBuilder.Defaults         = {};
 
 
 /**
+* Pull all styles from link/style tags within conditional comments and put them
+* in a style tag
+*
+* @param {String} html 
+*
+* @returns {String} html that has styles inserted into the conditional comments
+*/
+
+EmailBuilder.prototype.handleConditionals = function(html){
+
+  var reConditional = /(<!--\[\s*if[^>]+>)([\s\S]+?)(<![^>]+>)/gi;
+  var _self = this;
+
+  html = html.replace(reConditional, function(match, p1, p2, p3, offset, string){
+
+    var $ = cheerio.load(p2),
+        linkTags = $('link'),
+        styleTags = $('style'),
+        styles = '\n<style type="text/css">\n';
+
+    styleTags.each(function(){
+      styles += $(this).text() + '\n';
+    });
+
+    linkTags.each(function(){
+      var href = $(this).attr('href');
+      styles += _self.grunt.file.read(href) + '\n';
+    });
+
+    styles += '\n</style>\n';
+
+    return p1 + styles + p3;
+
+  });
+
+  return html;
+
+};
+
+
+/**
 * Prepare html to be inlined by extracting and removing any data-ignore styles  
 *
 * @param {String} file - src file to read 
@@ -50,7 +91,8 @@ EmailBuilder.prototype.prepareHtml = function(file) {
       styleTags    = $('style'),
       linkTags     = $('link'),
       ignoreStyles = '',
-      self         = this;
+      conditionals = '',
+      _self         = this;
 
   // Grab styles from style tags with data-ignore attr
   styleTags.each(function(){
@@ -70,17 +112,19 @@ EmailBuilder.prototype.prepareHtml = function(file) {
     
     if($this.attr('data-ignore')){
       var href = $this.attr('href');
-      ignoreStyles += self.grunt.file.read(href); 
+      ignoreStyles += _self.grunt.file.read(href); 
       $this.remove(); 
     }
   });
+
+  html = this.handleConditionals($.html());
 
   // Reset base to default
   this.grunt.file.setBase(this.basepath);
 
   return {
     ignoreStyles: ignoreStyles,
-    html: $.html()
+    html: html
   };
 
 };
@@ -257,7 +301,8 @@ EmailBuilder.prototype.run = function(grunt) {
         .then(this.sendEmailTest);
 
     })
-    .catch(function(err){ this.grunt.log.error(err); });
+    .catch(function(err){ this.grunt.log.error(err); })
+    .done(this.done);
 };
 
 
