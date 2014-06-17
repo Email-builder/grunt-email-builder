@@ -1,7 +1,7 @@
 {
   "name": "grunt-email-builder",
   "description": "Combine Html and Css into an email",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "homepage": "https://github.com/yargalot/Email-Builder",
   "author": {
     "name": "Steven Miller",
@@ -46,9 +46,9 @@
     "xmlbuilder": "~2.1.0",
     "cheerio": "~0.15.0",
     "lodash": "~2.4.1",
-    "request": "~2.34.0",
     "cli-table": "~0.3.0",
     "juice2": "~1.2.0",
-    "bluebird": "~1.2.4"
+    "bluebird": "~1.2.4",
+    "litmus-api": "~0.3.2"
   }
 }
