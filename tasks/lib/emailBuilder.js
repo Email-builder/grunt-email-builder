@@ -232,10 +232,15 @@ EmailBuilder.prototype.sendLitmus = function(html) {
 
     }
 
-    litmus.run(html, subject.trim());
+    return litmus.run(html, subject.trim())
+      .then(function(data){
+        console.log(data);
+      });
+
+  } else{
+    return html;
   }
 
-  return html;
 };
 
 
@@ -251,25 +256,32 @@ EmailBuilder.prototype.sendLitmus = function(html) {
 
 EmailBuilder.prototype.sendEmailTest = function(html) {
 
-  if(this.options.emailTest){
-    this.grunt.log.writeln('Sending test email to ' + this.options.emailTest.email);
+    if(this.options.emailTest){
+      this.grunt.log.writeln('Sending test email to ' + this.options.emailTest.email);
 
-    var mailOptions = {
-      from: this.options.emailTest.email,
-      to: this.options.emailTest.email,
-      subject: this.options.emailTest.subject,
-      text: '',
-      html: html
-    };
+      var mailOptions = {
+        from: this.options.emailTest.email,
+        to: this.options.emailTest.email,
+        subject: this.options.emailTest.subject,
+        text: '',
+        html: html
+      };
+      
+      return new Promise(function(resolve, reject){
 
-    transport.sendMail(mailOptions, function(error, response) {
-        response.statusHandler.once("sent", function(data){
-          console.log("Message was accepted by %s", data.domain);
+        transport.sendMail(mailOptions, function(error, response) {
+          if(error) { reject(err); }
+
+          response.statusHandler.once("sent", function(data){
+            console.log("Message was accepted by %s", data.domain);
+            resolve(html);
+          });
         });
-    });
-  }
 
-  return html;
+      });      
+    } else {
+      return html;
+    }
 
 };
 

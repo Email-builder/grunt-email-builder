@@ -1,9 +1,9 @@
-var request = require('request'),
-    mail = require('nodemailer').mail,
+var mail = require('nodemailer').mail,
     fs = require('fs'),
     cheerio = require('cheerio'),
     builder   = require('xmlbuilder'),
     Table = require('cli-table'),
+    LitmusAPI = require('litmus-api'),
     _ = require('lodash');
 
 
@@ -14,62 +14,23 @@ function Litmus(options){
 
 // Initialize variables
 Litmus.prototype.initVars = function() {
-
-  this.reqObj = {
-    auth: {
-      user: this.options.username || '',
-      pass: this.options.password || ''      
-    }
-  };
-};
-
-// Run test
-Litmus.prototype.run = function(html, title, next) {
-  this.title = this.options.title;
-  this.delay = this.options.delay || 3500;
-
-  if( (this.title === undefined) || (this.title.trim().length === 0) ){
-    this.title = title;
-  }
-
-  this.html = html;
-  this.getTests(function(body){
-    var id = this.getId(body);
-    this.sendTest(id);
-    setTimeout(next, this.delay);
-  });
-
-};
-
-// Grab tests from Litmus
-Litmus.prototype.getTests = function(fn) {
-  var self = this,
-      opts = this.reqObj;
-  opts.url = this.options.url + '/tests.xml';
-  request.get(opts, function(err, res, body){
-    if(err) { throw err; }
-    fn.call(self, body);
+  this.api = new LitmusAPI({
+    username: this.options.username,
+    password: this.options.password,
+    url: this.options.url
   });
 };
 
-// Grab the name of email and set id if it matches title/subject line
-Litmus.prototype.getId = function(body) {
-  var $ = cheerio.load(body, {xmlMode: true}),
-      $allNameTags = $('name'),
-      subjLine = this.title,
-      id,
-      $matchedName = $allNameTags.filter(function(){
-        return $(this).text() === subjLine;
-      });
 
-  if($matchedName.length){
-    id = $matchedName.parent().children('id').text();
-  }
+/**
+* Calculate and get the average time for test to complete
+*
+* @param {String} body - xml body returned from response  
+*
+* @returns {String} average time in seconds/minutes 
+* 
+*/
 
-  return id;
-};
-
-// Calculate and get the average time for test to complete
 Litmus.prototype.getAvgTime = function(body) {
   var $ = cheerio.load(body, { xmlMode: true });
   var avgTimes = $('average_time_to_process');
@@ -78,14 +39,20 @@ Litmus.prototype.getAvgTime = function(body) {
     count += +$(this).text();
   });
 
-  if(count < 60){
-    return count + ' secs';
-  }else{
-    return  Math.round((count/avgTimes.length)/60) + ' mins';
-  }
+  return (count < 60) ? (count + ' secs') : (Math.round((count/avgTimes.length)/60) + ' mins');
+
 };
 
-// Log status of test
+
+/**
+* Get the status of each result in a test
+*
+* @param {String} body - xml body returned from response  
+*
+* @returns {Object} map of delayed and unavailable clients based on status 
+* 
+*/
+
 Litmus.prototype.getStatus = function(body) {
   var $ = cheerio.load(body, { xmlMode: true }),
       statuses = $('status'),
@@ -95,7 +62,6 @@ Litmus.prototype.getStatus = function(body) {
       application;
 
   statuses.each(function(i, el){
-
     var $this = $(this);
     statusCode = +$this.text();
     application = $this.parent().children('application_long_name').text();
@@ -103,7 +69,6 @@ Litmus.prototype.getStatus = function(body) {
     if(statusCode === 1){ delayed.push(application); }
 
     if(statusCode === 2){ unavailable.push(application); }
-
   });
 
   return {
@@ -112,6 +77,15 @@ Litmus.prototype.getStatus = function(body) {
   };
 
 };
+
+
+/**
+* Creates a nice looking table on the command line that logs the
+* average time it takes for a test to complete and delayed and unavailable clients
+*
+* @param {String} body - xml body returned from response  
+* 
+*/
 
 Litmus.prototype.logStatusTable = function(body) {
   var table = new Table(),
@@ -138,29 +112,18 @@ Litmus.prototype.logStatusTable = function(body) {
   console.log(table.toString());
 };
 
-// Send a new version if id is availabe otherwise send a new test
-Litmus.prototype.sendTest = function(id) {
-  var self = this;
-  var opts = _.clone(this.reqObj);
 
-  opts.headers = { 'Content-type': 'application/xml', 'Accept': 'application/xml' };
-  opts.body = this.getBuiltXml(this.html, this.title);
+/**
+* Logs headers of response once email is sent
+*
+* @param {Array} data - array of data returned from promise  
+* 
+*/
 
-  if(id){
-    this.log('Sending new version: '.bold + this.title);
-    opts.url = this.options.url + '/tests/'+ id + '/versions.xml';
-    request.post(opts, this.mailNewVersion.bind(this));
-  }else{
-    this.log('Sending new test: '.bold + this.title);
-    opts.url = this.options.url + '/emails.xml';
-    request.post(opts, this.logHeaders.bind(this));
-  }
-};
+Litmus.prototype.logHeaders = function(data) {
 
-// Logs headers of response once email is sent
-Litmus.prototype.logHeaders = function(err, res, body) {
-  if(err){ throw err; }
-
+  var res = data[0];
+  var body = data[1];
   var headers = res.headers;
   var status = parseFloat(headers.status, 10);
 
@@ -179,9 +142,17 @@ Litmus.prototype.logHeaders = function(err, res, body) {
 
 };
 
-// Mail a new test using test email Litmus provides
-Litmus.prototype.mailNewVersion = function(err, res, body) {
-  if(err){ throw err; }
+
+/**
+* Mail a new test using the test email Litmus provides in the <url_or_guid> tag
+*
+* @param {Array} data - array of data returned from promise  
+* 
+*/
+
+Litmus.prototype.mailNewVersion = function(data) {
+
+  var body = data[1];
 
   var $ = cheerio.load(body),
       guid = $('url_or_guid').text(); 
@@ -197,6 +168,17 @@ Litmus.prototype.mailNewVersion = function(err, res, body) {
   this.logStatusTable(body);
 
 };
+
+
+/**
+* Builds xml body
+*
+* @param {String} html - final html output  
+* @param {String} title - title that will be used to name the Litmus test  
+*
+* @returns {Object} xml body for the request  
+* 
+*/
 
 Litmus.prototype.getBuiltXml = function(html, title) {
   var xmlApplications = builder.create('applications').att('type', 'array');
@@ -220,10 +202,98 @@ Litmus.prototype.getBuiltXml = function(html, title) {
   return xml;
 };
 
-// Logging helpers
+
+/**
+* Grab the name of email and set id if it matches title/subject line
+*
+* @param {String} body - xml body of all tests  
+*
+* @returns {Object} a map with the id 
+* 
+*/
+
+Litmus.prototype.getId = function(body) {
+  var xml = body[1];
+  fs.writeFileSync('yo.html', xml);
+  var $ = cheerio.load(xml, {xmlMode: true}),
+      $allNameTags = $('name'),
+      subjLine = this.title,
+      id,
+      $matchedName = $allNameTags.filter(function(){
+        return $(this).text() === subjLine;
+      });
+
+  if($matchedName.length){
+    id = $matchedName.eq(0).parent().children('id').text();
+  }
+
+  return {
+    id: id
+  };
+};
+
+
+/**
+* Send a new version if id is availabe otherwise send a new test
+*
+* @param {Object} data - object map that contains the id passed
+*
+* @returns {Object} a promise
+* 
+*/
+
+Litmus.prototype.sendTest = function(data) {
+
+  var body = this.getBuiltXml(this.html, this.title);
+
+  if(data.id){
+    this.log('Sending new version: '.bold + this.title);
+    return this.api.createVersion(data.id)
+      .bind(this)
+      .then(this.mailNewVersion);
+  }else{
+    this.log('Sending new test: '.bold + this.title);
+    return this.api.createEmailTest(body)
+      .bind(this)
+      .then(this.logHeaders);
+  }
+};
+
+
+/**
+* Starts the initialization
+*
+* @param {String} html - final html output
+* @param {String} title - title that will be used to name the Litmus test
+*
+* @returns {Object} a promise
+* 
+*/
+
+Litmus.prototype.run = function(html, title, next) {
+  this.title = this.options.subject;
+  this.delay = this.options.delay || 3500;
+
+  if( (this.title === undefined) || (this.title.trim().length === 0) ){
+    this.title = title;
+  }
+
+  this.html = html;
+
+  return this.api.getTests()
+    .bind(this)
+    .then(this.getId)
+    .then(this.sendTest);
+
+};
+
+
+// LOGGING HELPERS
+
 Litmus.prototype.log = function(str) {
   return console.log(str.cyan);
 };
+
 
 Litmus.prototype.logSuccess = function(str) {
   return console.log(str.green);
