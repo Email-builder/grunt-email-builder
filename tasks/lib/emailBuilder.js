@@ -232,10 +232,7 @@ EmailBuilder.prototype.sendLitmus = function(html) {
 
     }
 
-    return litmus.run(html, subject.trim())
-      .then(function(data){
-        console.log(data);
-      });
+    return litmus.run(html, subject.trim());
 
   } else{
     return html;
