@@ -214,7 +214,7 @@ Litmus.prototype.getBuiltXml = function(html, title) {
 
 Litmus.prototype.getId = function(body) {
   var xml = body[1];
-  fs.writeFileSync('yo.html', xml);
+  
   var $ = cheerio.load(xml, {xmlMode: true}),
       $allNameTags = $('name'),
       subjLine = this.title,
