@@ -270,7 +270,7 @@ Litmus.prototype.sendTest = function(data) {
 * 
 */
 
-Litmus.prototype.run = function(html, title, next) {
+Litmus.prototype.run = function(html, title) {
   this.title = this.options.subject;
   this.delay = this.options.delay || 3500;
 
