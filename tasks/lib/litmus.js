@@ -283,7 +283,8 @@ Litmus.prototype.run = function(html, title) {
   return this.api.getTests()
     .bind(this)
     .then(this.getId)
-    .then(this.sendTest);
+    .then(this.sendTest)
+    .return(html);
 
 };
 
