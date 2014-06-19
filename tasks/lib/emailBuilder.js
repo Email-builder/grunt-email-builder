@@ -25,7 +25,6 @@ function EmailBuilder(task) {
   this.task     = task;
   this.options  = task.options(EmailBuilder.Defaults);
   this.basepath = process.cwd();
-  this.done     = this.task.async();
   this.grunt    = this.task.grunt;
 }
 
@@ -293,7 +292,7 @@ EmailBuilder.prototype.sendEmailTest = function(html) {
 * 
 */
 
-EmailBuilder.prototype.run = function(grunt) {
+EmailBuilder.prototype.run = function() {
 
   var files = Promise.resolve(this.task.files);
 
@@ -310,8 +309,7 @@ EmailBuilder.prototype.run = function(grunt) {
         .then(this.sendEmailTest);
 
     })
-    .catch(function(err){ this.grunt.log.error(err); })
-    .done(this.done);
+    .catch(function(err){ this.grunt.log.error(err); });
 };
 
 
@@ -327,10 +325,11 @@ EmailBuilder.registerWithGrunt = function(grunt) {
   grunt.registerMultiTask(EmailBuilder.taskName, EmailBuilder.taskDescription, function() {
 
     this.grunt = grunt;
-
+    var done = this.async();
     var task = new EmailBuilder(this);
 
-    task.run(grunt);
+    task.run()
+      .done(done);
 
   });
 };
