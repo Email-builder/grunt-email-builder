@@ -180,6 +180,7 @@ Thanks for helping out:
 - Can now pass in [Juice options](https://github.com/andrewrk/juice#juicefilepath-options-callback) into options config
 - Using Bluebird promise lib instead of async lib
 - Link tags within conditional comments will be put into a style tag. Fixes [#19](https://github.com/yargalot/Email-Builder/issues/19)
+- Added emailTest.transport option for users that might want to use a different transport method
 
 2.0.1
 - Using juice2 which is an up-to-date version of juice
