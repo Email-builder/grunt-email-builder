@@ -69,9 +69,20 @@ Send yourself a test email
     email : 'yourEmail@email.com',
 
     // Your email Subject
-    subject : 'Email Subject'
+    subject : 'Email Subject',
+
+    // Optional
+    transport: {
+      type: 'SMTP',
+      service: 'gmail',
+      auth: {
+        user: 'gmail.user@gmail.com',
+        pass: 'gmailpass'
+      }
+    }
   }
 ```
+View [nodmailer transport methods](https://github.com/andris9/nodemailer#possible-transport-methods) if using **emailTest.transport** option
 
 **options.litmus**
 

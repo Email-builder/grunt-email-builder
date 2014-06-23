@@ -272,7 +272,7 @@ EmailBuilder.prototype.sendEmailTest = function(html) {
 
         transport.sendMail(mailOptions, function(error, response) {
           if(error) { return reject(error); }
-        
+
           if(response.statusHandler){
             response.statusHandler.once("sent", function(data){
               console.log("Message was accepted by %s", data.domain);
@@ -286,7 +286,7 @@ EmailBuilder.prototype.sendEmailTest = function(html) {
 
         });
 
-      });
+      }); 
 
     } else {
       return html;
