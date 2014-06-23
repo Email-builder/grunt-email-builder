@@ -54,6 +54,8 @@ To prevent styles from being inlined, use the `data-ignore` attribute on embedde
 
 ###Options
 
+Can use any of the [Juice options](https://github.com/andrewrk/juice#juicefilepath-options-callback) along with the ones below
+
 **options.emailTest**
 
 Type: ``Object``
@@ -67,9 +69,20 @@ Send yourself a test email
     email : 'yourEmail@email.com',
 
     // Your email Subject
-    subject : 'Email Subject'
+    subject : 'Email Subject',
+
+    // Optional
+    transport: {
+      type: 'SMTP',
+      service: 'gmail',
+      auth: {
+        user: 'gmail.user@gmail.com',
+        pass: 'gmailpass'
+      }
+    }
   }
 ```
+View [nodmailer transport methods](https://github.com/andris9/nodemailer#possible-transport-methods) if using **emailTest.transport** option
 
 **options.litmus**
 
@@ -163,7 +176,13 @@ Thanks for helping out:
 
 ## Release History
 
-### 2.0.1
+2.0.2
+- Can now pass in [Juice options](https://github.com/andrewrk/juice#juicefilepath-options-callback) into options config
+- Using Bluebird promise lib instead of async lib
+- Link tags within conditional comments will be put into a style tag. Fixes [#19](https://github.com/yargalot/Email-Builder/issues/19)
+- Added emailTest.transport option for users that might want to use a different transport method
+
+2.0.1
 - Using juice2 which is an up-to-date version of juice
 - Removing options.doctype because juice2 handles this
 - Added options.delay
