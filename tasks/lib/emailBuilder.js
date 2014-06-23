@@ -16,8 +16,7 @@ var path      = require('path'),
     encode    = require('./entityEncode'),
     Litmus    = require('./litmus'),
     Promise   = require('bluebird'),
-    juice     = Promise.promisifyAll(require('juice2')),
-    transport = mailer.createTransport();
+    juice     = Promise.promisifyAll(require('juice2'));
 
 
 function EmailBuilder(task) {
@@ -233,7 +232,7 @@ EmailBuilder.prototype.sendLitmus = function(html) {
 
     return litmus.run(html, subject.trim());
 
-  } else{
+  } else {
     return html;
   }
 
@@ -253,28 +252,42 @@ EmailBuilder.prototype.sendLitmus = function(html) {
 EmailBuilder.prototype.sendEmailTest = function(html) {
 
     if(this.options.emailTest){
-      this.grunt.log.writeln('Sending test email to ' + this.options.emailTest.email);
+
+      var emailTest = this.options.emailTest,
+          transportType = emailTest.transport ? emailTest.transport.type : false,
+          transportOpts = emailTest.transport ? emailTest.transport.options : false,
+          transport = mailer.createTransport(transportType, transportOpts);
 
       var mailOptions = {
-        from: this.options.emailTest.email,
-        to: this.options.emailTest.email,
-        subject: this.options.emailTest.subject,
+        from: emailTest.email,
+        to: emailTest.email,
+        subject: emailTest.subject,
         text: '',
         html: html
       };
+
+      this.grunt.log.writeln('Sending test email to ' + emailTest.email);
       
       return new Promise(function(resolve, reject){
 
         transport.sendMail(mailOptions, function(error, response) {
-          if(error) { reject(err); }
-
-          response.statusHandler.once("sent", function(data){
-            console.log("Message was accepted by %s", data.domain);
+          if(error) { return reject(error); }
+        
+          if(response.statusHandler){
+            response.statusHandler.once("sent", function(data){
+              console.log("Message was accepted by %s", data.domain);
+              resolve(html);
+            });
+          } else {
+            console.log(response.message);
+            console.log("Message was sent");
             resolve(html);
-          });
+          }
+
         });
 
-      });      
+      });
+
     } else {
       return html;
     }
