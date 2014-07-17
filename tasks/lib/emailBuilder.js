@@ -51,20 +51,25 @@ EmailBuilder.prototype.handleConditionals = function(html){
     var $ = cheerio.load(p2),
         linkTags = $('link'),
         styleTags = $('style'),
-        styles = '\n<style type="text/css">\n';
-
+        stylesExist = (styleTags.length || linkTags.length),
+        styles = stylesExist ? '\n<style type="text/css">\n' : '';
+        
     styleTags.each(function(){
-      styles += $(this).text() + '\n';
+      var $this = $(this);
+      styles += $this.text() + '\n';
+      $this.remove();
     });
 
     linkTags.each(function(){
-      var href = $(this).attr('href');
+      var $this = $(this);
+      var href = $this.attr('href');
       styles += _self.grunt.file.read(href) + '\n';
+      $this.remove();
     });
 
-    styles += '\n</style>\n';
-
-    return p1 + styles + p3;
+    styles += stylesExist ? '\n</style>\n' : '';
+    
+    return p1 + styles + $.html() + p3;
 
   });
 
