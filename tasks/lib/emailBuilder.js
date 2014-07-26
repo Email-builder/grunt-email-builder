@@ -43,7 +43,7 @@ EmailBuilder.Defaults         = {};
 
 EmailBuilder.prototype.handleConditionals = function(html){
 
-  var reConditional = /(<!--\[\s*if[^>]+>)([\s\S]+?)(<![^>]+>)/gi;
+  var reConditional = /(<!--\[\s*if[^>]+>(?:<![^>]+>)?)([\s\S]+?)(<![^>]+>)/gi;
   var _self = this;
 
   html = html.replace(reConditional, function(match, p1, p2, p3, offset, string){
