@@ -11,3 +11,4 @@ deploy:
   on:
     tags: true
     repo: yargalot/Email-Builder
+    branch: master
