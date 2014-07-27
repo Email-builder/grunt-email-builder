@@ -4,7 +4,7 @@ Inline css into HTML or inline css into styletags for emails. You can then send 
 
 You can see an example setups below 
 - [example](https://github.com/yargalot/email-builder-example)
-- [rwdemail](https://github.com/iDVB/rwdemail)
+- [rwdemail](https://github.com/iDVB/rwdemail) by [iDVB](https://github.com/iDVB)
 
 [![NPM version](https://badge.fury.io/js/grunt-email-builder.png)](http://badge.fury.io/js/grunt-email-builder) [![Build Status](https://travis-ci.org/yargalot/Email-Builder.svg?branch=master)](https://travis-ci.org/yargalot/Email-Builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
