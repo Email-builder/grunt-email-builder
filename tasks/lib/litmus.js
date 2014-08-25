@@ -1,4 +1,5 @@
-var mail = require('nodemailer').mail,
+var Promise = require('bluebird'),
+    nodemailer = require('nodemailer'),
     fs = require('fs'),
     cheerio = require('cheerio'),
     builder   = require('xmlbuilder'),
@@ -153,19 +154,23 @@ Litmus.prototype.logHeaders = function(data) {
 Litmus.prototype.mailNewVersion = function(data) {
 
   var body = data[1];
-
-  var $ = cheerio.load(body),
-      guid = $('url_or_guid').text(); 
-
-  mail({
+  var transport = Promise.promisifyAll(nodemailer.createTransport());
+  var $ = cheerio.load(body);
+  var guid = $('url_or_guid').text(); 
+  var options = {
       from: 'no-reply@test.com',
       to: guid,
       subject: this.title,
       text: '',
       html: this.html
+  };
+
+  return transport.sendMailAsync(options)
+  .bind(this)
+  .then(function(){
+    this.logSuccess('New version sent!');
+    this.logStatusTable(body);
   });
-  this.logSuccess('New version sent!');
-  this.logStatusTable(body);
 
 };
 
