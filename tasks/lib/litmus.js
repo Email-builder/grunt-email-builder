@@ -1,5 +1,5 @@
-var Promise = require('bluebird'),
-    nodemailer = require('nodemailer'),
+var mailer = require('nodemailer'),
+    Promise = require('bluebird'),
     fs = require('fs'),
     cheerio = require('cheerio'),
     builder   = require('xmlbuilder'),
@@ -154,22 +154,39 @@ Litmus.prototype.logHeaders = function(data) {
 Litmus.prototype.mailNewVersion = function(data) {
 
   var body = data[1];
-  var transport = Promise.promisifyAll(nodemailer.createTransport());
+  var self = this;
   var $ = cheerio.load(body);
-  var guid = $('url_or_guid').text(); 
-  var options = {
-      from: 'no-reply@test.com',
-      to: guid,
-      subject: this.title,
-      text: '',
-      html: this.html
+  var guid = $('url_or_guid').text();
+  var transport = mailer.createTransport();
+  var mailOptions = {
+    from: 'no-reply@test.com',
+    to: guid,
+    subject: this.title,
+    text: '',
+    html: this.html
   };
 
-  return transport.sendMailAsync(options)
-  .bind(this)
-  .then(function(){
-    this.logSuccess('New version sent!');
-    this.logStatusTable(body);
+  return new Promise(function(resolve, reject){
+
+    transport.sendMail(mailOptions, function(error, response) {
+      if(error) { return reject(error); }
+
+      if(response.statusHandler){
+        response.statusHandler.once("sent", function(data){
+          console.log("Message was accepted by %s", data.domain);
+          resolve(self.html);
+        });
+      } else {
+        console.log(response.message);
+        console.log("Message was sent");
+        resolve(self.html);
+      }
+
+    });
+
+  }).then(function(){
+    self.logSuccess('New version sent!');
+    self.logStatusTable(body);
   });
 
 };
