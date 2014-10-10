@@ -63,8 +63,18 @@ EmailBuilder.prototype.handleConditionals = function(html){
     linkTags.each(function(){
       var $this = $(this);
       var href = $this.attr('href');
-      styles += _self.grunt.file.read(href) + '\n';
-      $this.remove();
+      var pathExists = _self.grunt.file.exists(path.resolve(process.cwd(), href));
+
+      if(pathExists){
+        styles += _self.grunt.file.read(href) + '\n';
+        $this.remove();
+      }else {
+
+        // If we don't remove links whose paths do not exist then the css 
+        // will not get inlined due to a bug in juice.juiceContent method
+        $this.remove();
+      }
+      
     });
 
     styles += stylesExist ? '\n</style>\n' : '';
@@ -112,19 +122,30 @@ EmailBuilder.prototype.prepareHtml = function(file) {
   // Grab styles from links with data-ignore attr
   linkTags.each(function(){
     var $this = $(this);
-    
-    if($this.attr('data-ignore')){
-      var href = $this.attr('href');
-      ignoreStyles += _self.grunt.file.read(href); 
-      $this.remove(); 
+    var href = $this.attr('href');
+    var pathExists = _self.grunt.file.exists(path.resolve(process.cwd(), href));
+
+    if(pathExists){
+
+      if($this.attr('data-ignore')){
+        ignoreStyles += _self.grunt.file.read(href); 
+        $this.remove(); 
+      }
+
+    } else {
+
+      // If we don't remove links whose paths do not exist then the css 
+      // will not get inlined due to a bug in juice.juiceContent method
+      $this.remove();
     }
+    
   });
 
   html = this.handleConditionals($.html());
 
   // Reset base to default
   this.grunt.file.setBase(this.basepath);
-
+  
   return {
     ignoreStyles: ignoreStyles,
     html: html
@@ -153,10 +174,11 @@ EmailBuilder.prototype.inlineCss = function(src, dest) {
       prepHtml = this.prepareHtml(src);
 
   this.options.url = url;
-
+  
   return juice.juiceContentAsync(prepHtml.html, this.options)
     .bind(this)
     .then(function(html){
+      
       html = html.replace(/(<\/head>)/gi, '<style type="text/css">' + prepHtml.ignoreStyles + '</style>$1');
       
       if(this.options.encodeSpecialChars) { html = encode.htmlEncode(html); }
