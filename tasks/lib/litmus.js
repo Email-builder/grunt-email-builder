@@ -186,17 +186,14 @@ Litmus.prototype.mailNewVersion = function(data) {
 */
 
 Litmus.prototype.getBuiltXml = function(html, title) {
-  var xmlApplications = builder.create('applications').att('type', 'array');
+
+  var xml = builder.create('test_set').ele('applications').att('type', 'array');
 
   _.each(this.options.applications, function(app) {
-    var item = xmlApplications.ele('application');
-
-    item.ele('code', app);
+    xml = xml.ele('application').ele('code', app).up().up();
   });
 
-  //Build Xml to send off, Join with Application XMl
-  var xml = builder.create('test_set')
-    .importXMLBuilder(xmlApplications)
+  xml = xml.up()
     .ele('save_defaults', 'false').up()
     .ele('use_defaults', 'false').up()
     .ele('email_source')
