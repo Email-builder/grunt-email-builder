@@ -57,7 +57,6 @@ EmailBuilder.prototype.handleConditionals = function(html){
     styleTags.each(function(){
       var $this = $(this);
       styles += $this.text() + '\n';
-      $this.remove();
     });
 
     linkTags.each(function(){
@@ -67,19 +66,20 @@ EmailBuilder.prototype.handleConditionals = function(html){
 
       if(pathExists){
         styles += _self.grunt.file.read(href) + '\n';
-        $this.remove();
-      }else {
-
-        // If we don't remove links whose paths do not exist then the css 
-        // will not get inlined due to a bug in juice.juiceContent method
-        $this.remove();
       }
-      
     });
-
-    styles += stylesExist ? '\n</style>\n' : '';
     
-    return p1 + styles + $.html() + p3;
+    // Remove links and style tags after they've been inlined 
+    // If we don't remove links whose paths do not exist then the css 
+    // will not get inlined due to a bug in juice.juiceContent method
+    if(stylesExist){
+      p2 = p2.replace(/<\bstyle\b[\s\S]+<\/\bstyle\b>/g, '')
+          .replace(/<link.*stylesheet[^>]+>/g,'');
+    }
+    
+    styles += stylesExist ? '\n</style>\n' : '';
+
+    return p1 + styles + p2 + p3;
 
   });
 
@@ -362,8 +362,8 @@ EmailBuilder.registerWithGrunt = function(grunt) {
   // TASKS
   // ==========================================================================
 
-  grunt.registerMultiTask(EmailBuilder.taskName, EmailBuilder.taskDescription, function() {
 
+  grunt.registerMultiTask(EmailBuilder.taskName, EmailBuilder.taskDescription, function() {
     this.grunt = grunt;
     var done = this.async();
     var task = new EmailBuilder(this);
