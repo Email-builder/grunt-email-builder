@@ -9,18 +9,17 @@
  */
 
  // Required modules
-var path      = require('path'),
-    os        = require('os');
-    cheerio   = require('cheerio'),
-    mailer    = require('nodemailer'),
-    encode    = require('./entityEncode'),
-    Litmus    = require('./litmus'),
-    Promise   = require('bluebird'),
-    juice     = Promise.promisifyAll(require('juice2'));
+var path    = require('path');
+var os      = require('os');
+var cheerio = require('cheerio');
+var mailer  = require('nodemailer');
+var encode  = require('./entityEncode');
+var Litmus  = require('./litmus');
+var Promise = require('bluebird');
+var juice   = Promise.promisifyAll(require('juice2'));
 
 
 function EmailBuilder(task) {
-
   this.task     = task;
   this.options  = task.options(EmailBuilder.Defaults);
   this.basepath = process.cwd();
@@ -29,7 +28,41 @@ function EmailBuilder(task) {
 
 EmailBuilder.taskName         = 'emailBuilder';
 EmailBuilder.taskDescription  = 'Compile Files';
-EmailBuilder.Defaults         = {};
+EmailBuilder.Defaults         = {
+  removeStyleTags: true,
+  removeLinkTags: true
+};
+
+
+
+/**
+* Remove all style and link tags by default
+*
+* @param {String} html 
+*
+* @returns {String} html that has style and link tags removed
+*/
+
+EmailBuilder.prototype.removeStyles = function(html) {
+  
+  var $           = cheerio.load(html);
+  var linkTags    = $('link');
+  var styleTags   = $('style');
+  var stylesExist = (styleTags.length || linkTags.length);
+
+  // Remove links and style tags after they've been inlined 
+  if(stylesExist){
+    if(this.options.removeStyleTags) {
+      html = html.replace(/<\bstyle\b[\s\S]+<\/\bstyle\b>/g, '');
+    }
+
+    if(this.options.removeLinkTags){
+      html = html.replace(/<link.*stylesheet[^>]+>/g,'');
+    }
+  }
+
+  return html;
+};
 
 
 /**
@@ -41,45 +74,28 @@ EmailBuilder.Defaults         = {};
 * @returns {String} html that has styles inserted into the conditional comments
 */
 
-EmailBuilder.prototype.handleConditionals = function(html){
+EmailBuilder.prototype.addStylesToConditionals = function(html){
 
   var reConditional = /(<!--\[\s*if[^>]+>(?:<![^>]+>)?)([\s\S]+?)(<![^>]+>)/gi;
   var _self = this;
+  var $, linkTags, styleTags, stylesExist, styles;
 
   html = html.replace(reConditional, function(match, p1, p2, p3, offset, string){
 
-    var $ = cheerio.load(p2),
-        linkTags = $('link'),
-        styleTags = $('style'),
-        stylesExist = (styleTags.length || linkTags.length),
-        styles = stylesExist ? '\n<style type="text/css">\n' : '';
+    $           = cheerio.load(p2);
+    linkTags    = $('link');
+    styleTags   = $('style');
+    stylesExist = (styleTags.length || linkTags.length);
+    styles      = stylesExist ? '\n<style type="text/css">\n' : '';
         
-    styleTags.each(function(){
-      var $this = $(this);
-      styles += $this.text() + '\n';
-      $this.remove();
-    });
-
-    linkTags.each(function(){
-      var $this = $(this);
-      var href = $this.attr('href');
-      var pathExists = _self.grunt.file.exists(path.resolve(process.cwd(), href));
-
-      if(pathExists){
-        styles += _self.grunt.file.read(href) + '\n';
-        $this.remove();
-      }else {
-
-        // If we don't remove links whose paths do not exist then the css 
-        // will not get inlined due to a bug in juice.juiceContent method
-        $this.remove();
-      }
-      
-    });
+    styles += _self.getStyleTagContent(p2).conditionalStyles;
+    styles += _self.getLinkTagContent(p2).conditionalStyles;
+    
+    p2 = _self.removeStyles(p2);
 
     styles += stylesExist ? '\n</style>\n' : '';
     
-    return p1 + styles + $.html() + p3;
+    return p1 + styles + p2 + p3;
 
   });
 
@@ -88,8 +104,117 @@ EmailBuilder.prototype.handleConditionals = function(html){
 };
 
 
+
 /**
-* Prepare html to be inlined by extracting and removing any data-ignore styles  
+* Get styles from style tag
+*
+* @param {String} html 
+*
+* @returns {String} an object whose properties contain styles from data-ignore being set
+* or styles within conditional comments
+*/
+
+EmailBuilder.prototype.getStyleTagContent = function(html) {
+  
+  var $                 = cheerio.load(html);
+  var styleTags         = $('style');
+  var ignoreStyles      = '';
+  var conditionalStyles = '';
+  var $this;
+
+  // Grab styles from style tags with data-ignore attr
+  styleTags.each(function(){
+    $this = $(this);
+    if($this.attr('data-ignore')){
+      ignoreStyles += $this.text();
+    } else {
+      conditionalStyles += $this.text();
+    }
+  }); 
+
+  return {
+    ignoreStyles: ignoreStyles,
+    conditionalStyles: conditionalStyles
+  };
+};
+
+
+
+/**
+* Get styles from link tag path
+*
+* @param {String} html 
+*
+* @returns {String} an object whose properties contain styles from data-ignore being set
+* or styles within conditional comments
+*/
+
+EmailBuilder.prototype.getLinkTagContent = function(html) {
+  
+  var $                 = cheerio.load(html);
+  var linkTags          = $('link');
+  var _self             = this;
+  var ignoreStyles      = '';
+  var conditionalStyles = '';
+  var $this, href, pathExists;
+
+  // Grab styles from links with data-ignore attr
+  linkTags.each(function(){
+    $this      = $(this);
+    href       = $this.attr('href');
+    pathExists = _self.grunt.file.exists(path.resolve(process.cwd(), href));
+
+    if(pathExists){
+      if($this.attr('data-ignore')){
+        ignoreStyles += _self.grunt.file.read(href); 
+      } else {
+        conditionalStyles += _self.grunt.file.read(href);
+      }
+    } 
+    
+  }); 
+
+  return {
+    ignoreStyles: ignoreStyles,
+    conditionalStyles: conditionalStyles
+  };
+};
+
+
+
+/**
+* Remove any link tags whose href path does not exist
+*
+* @param {String} html 
+*
+* @returns {String} new html 
+*/
+
+EmailBuilder.prototype.removeNonLinks = function(html) {
+  var $        = cheerio.load(html);
+  var linkTags = $('link');
+  var _self    = this;
+  var linkTag;
+
+  linkTags.each(function(){
+    $this      = $(this);
+    href       = $this.attr('href');
+    pathExists = _self.grunt.file.exists(path.resolve(process.cwd(), href));
+
+    if(!pathExists){
+      linkTag = new RegExp('<link.*'+ href +'[^>]+>', 'g');
+      html = html.replace(linkTag, '');
+    } 
+    
+  });
+
+  return html;
+};
+
+
+
+/**
+* Transform html to be inlined by extracting and removing any data-ignore styles  
 *
 * @param {String} file - src file to read 
 *
@@ -97,51 +222,24 @@ EmailBuilder.prototype.handleConditionals = function(html){
 * @returns {Object} html - the new html with any style tags/links 
 */
 
-EmailBuilder.prototype.prepareHtml = function(file) {
+EmailBuilder.prototype.transformHtml = function(file) {
 
-  var html         = this.grunt.file.read(file),
-      $            = cheerio.load(html),
-      styleTags    = $('style'),
-      linkTags     = $('link'),
-      ignoreStyles = '',
-      conditionals = '',
-      _self         = this;
-
-  // Grab styles from style tags with data-ignore attr
-  styleTags.each(function(){
-    var $this = $(this);
-    if($this.attr('data-ignore')){
-      ignoreStyles += $this.text();
-      $this.remove();
-    }
-  });    
+  var html         = this.grunt.file.read(file);
+  var $            = cheerio.load(html);
+  var ignoreStyles = '';
+  var _self        = this;   
 
   // Reset base to file path
   this.grunt.file.setBase(path.dirname(file));
 
-  // Grab styles from links with data-ignore attr
-  linkTags.each(function(){
-    var $this = $(this);
-    var href = $this.attr('href');
-    var pathExists = _self.grunt.file.exists(path.resolve(process.cwd(), href));
+  ignoreStyles += this.getStyleTagContent(html).ignoreStyles;
+  ignoreStyles += this.getLinkTagContent(html).ignoreStyles;
+  
+  html = this.addStylesToConditionals($.html());
 
-    if(pathExists){
-
-      if($this.attr('data-ignore')){
-        ignoreStyles += _self.grunt.file.read(href); 
-        $this.remove(); 
-      }
-
-    } else {
-
-      // If we don't remove links whose paths do not exist then the css 
-      // will not get inlined due to a bug in juice.juiceContent method
-      $this.remove();
-    }
-    
-  });
-
-  html = this.handleConditionals($.html());
+  // If we don't remove links whose paths do not exist then the css 
+  // will not get inlined due to a bug in juice 
+  html = this.removeNonLinks(html);
 
   // Reset base to default
   this.grunt.file.setBase(this.basepath);
@@ -169,17 +267,17 @@ EmailBuilder.prototype.prepareHtml = function(file) {
 
 EmailBuilder.prototype.inlineCss = function(src, dest) {
 
-  var slashes = os.platform() === 'win32' ? '\\\\' : '//',
-      url     = "file:" + slashes + path.join(this.basepath, src),
-      prepHtml = this.prepareHtml(src);
+  var slashes       = os.platform() === 'win32' ? '\\\\' : '//';
+  var url           = "file:" + slashes + path.join(this.basepath, src);
+  var transformHtml = this.transformHtml(src);
 
   this.options.url = url;
   
-  return juice.juiceContentAsync(prepHtml.html, this.options)
+  return juice.juiceContentAsync(transformHtml.html, this.options)
     .bind(this)
     .then(function(html){
       
-      html = html.replace(/(<\/head>)/gi, '<style type="text/css">' + prepHtml.ignoreStyles + '</style>$1');
+      html = html.replace(/(<\/head>)/gi, '<style type="text/css">' + transformHtml.ignoreStyles + '</style>$1');
       
       if(this.options.encodeSpecialChars) { html = encode.htmlEncode(html); }
 
@@ -190,6 +288,7 @@ EmailBuilder.prototype.inlineCss = function(src, dest) {
 
     });
 };
+
 
 
 /**
@@ -213,6 +312,7 @@ EmailBuilder.prototype.writeFile = function(map) {
 };
 
 
+
 /**
 * Send tests to Litmus App  
 *
@@ -225,13 +325,13 @@ EmailBuilder.prototype.writeFile = function(map) {
 EmailBuilder.prototype.sendLitmus = function(html) {
 
   if(this.options.litmus){
-    var litmus    = new Litmus(this.options.litmus),
-        date      = this.task.grunt.template.today('yyyy-mm-dd'),
-        subject   = this.options.litmus.subject,
-        $         = cheerio.load(html),
-        $title    = $('title').text().trim(),
-        files     = this.task.filesSrc,
-        titleDups = {};
+    var litmus    = new Litmus(this.options.litmus);
+    var date      = this.task.grunt.template.today('yyyy-mm-dd');
+    var subject   = this.options.litmus.subject;
+    var $         = cheerio.load(html);
+    var $title    = $('title').text().trim();
+    var files     = this.task.filesSrc;
+    var titleDups = {};
 
     if( (subject === undefined) || (subject.trim().length === 0) ){
       subject = $title;
@@ -280,11 +380,10 @@ EmailBuilder.prototype.sendEmailTest = function(html) {
 
     if(this.options.emailTest){
 
-      var emailTest = this.options.emailTest,
-          transportType = emailTest.transport ? emailTest.transport.type : false,
-          transportOpts = emailTest.transport ? emailTest.transport.options : false,
-          transport = mailer.createTransport(transportType, transportOpts);
-
+      var emailTest     = this.options.emailTest;
+      var transportType = emailTest.transport ? emailTest.transport.type : false;
+      var transportOpts = emailTest.transport ? emailTest.transport.options : false;
+      var transport     = mailer.createTransport(transportType, transportOpts);
       var mailOptions = {
         from: emailTest.email,
         to: emailTest.email,
@@ -362,15 +461,14 @@ EmailBuilder.registerWithGrunt = function(grunt) {
   // TASKS
   // ==========================================================================
 
-  grunt.registerMultiTask(EmailBuilder.taskName, EmailBuilder.taskDescription, function() {
 
+  grunt.registerMultiTask(EmailBuilder.taskName, EmailBuilder.taskDescription, function() {
     this.grunt = grunt;
-    var done = this.async();
-    var task = new EmailBuilder(this);
+    var done   = this.async();
+    var task   = new EmailBuilder(this);
 
     task.run()
       .done(done);
-
   });
 };
 
