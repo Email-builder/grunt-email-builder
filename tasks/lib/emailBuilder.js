@@ -53,7 +53,7 @@ EmailBuilder.prototype.removeStyles = function(html) {
   // Remove links and style tags after they've been inlined 
   if(stylesExist){
     if(this.options.removeStyleTags) {
-      html = html.replace(/<\bstyle\b[\s\S]+<\/\bstyle\b>/g, '');
+      html = html.replace(/<\bstyle\b[\s\S]+?<\/\bstyle\b>/g, '');
     }
 
     if(this.options.removeLinkTags){
@@ -183,25 +183,34 @@ EmailBuilder.prototype.getLinkTagContent = function(html) {
 
 
 /**
-* Remove any link tags whose href path does not exist
+* Remove any link tags whose href path does not exist and
+* remove any data-ignore link/style tags
 *
 * @param {String} html 
 *
 * @returns {String} new html 
 */
 
-EmailBuilder.prototype.removeNonLinks = function(html) {
+EmailBuilder.prototype.cleanUpStyles = function(html) {
   var $        = cheerio.load(html);
   var linkTags = $('link');
+  var styleTags = $('style');
   var _self    = this;
-  var linkTag;
+  var linkTag, styleTag;
+
+  styleTags.each(function(){
+    $this = $(this);
+    if($this.attr('data-ignore')) {
+      html = html.replace(/<\bstyle\b.*\bdata\b\-\bignore\b[\s\S]+?<\/\bstyle\b>/g, '');
+    }
+  });
 
   linkTags.each(function(){
     $this      = $(this);
     href       = $this.attr('href');
     pathExists = _self.grunt.file.exists(path.resolve(process.cwd(), href));
 
-    if(!pathExists){
+    if(!pathExists || $this.attr('data-ignore')){
       linkTag = new RegExp('<link.*'+ href +'[^>]+>', 'g');
       html = html.replace(linkTag, '');
     } 
@@ -239,7 +248,7 @@ EmailBuilder.prototype.transformHtml = function(file) {
 
   // If we don't remove links whose paths do not exist then the css 
   // will not get inlined due to a bug in juice 
-  html = this.removeNonLinks(html);
+  html = this.cleanUpStyles(html);
 
   // Reset base to default
   this.grunt.file.setBase(this.basepath);
@@ -277,7 +286,9 @@ EmailBuilder.prototype.inlineCss = function(src, dest) {
     .bind(this)
     .then(function(html){
       
-      html = html.replace(/(<\/head>)/gi, '<style type="text/css">' + transformHtml.ignoreStyles + '</style>$1');
+      if(transformHtml.ignoreStyles) {
+        html = html.replace(/(<\/head>)/gi, '<style type="text/css">\n' + transformHtml.ignoreStyles + '\n</style>$1');  
+      }
       
       if(this.options.encodeSpecialChars) { html = encode.htmlEncode(html); }
 
