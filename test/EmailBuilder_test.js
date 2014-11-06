@@ -27,29 +27,67 @@ grunt.loadTasks('tasks');
 
 exports.emailBuilder = {
   setUp: function(done) {
+
     // setup here
     done();
   },
-  compile: function(test) {
-    
-    // TESTS
-    // ----------
+  allStyles: function(test) {
+    test.expect(1);
+
+    var actual    = grunt.file.read('example/dest/all.html');
+    var expected  = grunt.file.read('test/expected/all.html');
+    test.equal(expected, actual, 'should compile all styles');
+
+    test.done();
+  },
+  conditionalStyles: function(test) {
+    test.expect(1);
+
+    var actual    = grunt.file.read('example/dest/conditional_styles.html');
+    var expected  = grunt.file.read('test/expected/conditional_styles.html');
+    test.equal(expected, actual, 'should add external styles within conditionals in a style tag');
+
+    test.done();
+  },
+  embeddedStyles: function(test) {
     test.expect(2);
 
-    var actual    = grunt.file.read('example/test/htmlTest.html');
-    var expected  = grunt.file.read('test/expected/htmlTest.html');
-    test.equal(expected, actual, 'should inline css links that have data-placement tags');
+    var actual    = grunt.file.read('example/dest/embedded_styles.html');
+    var expected  = grunt.file.read('test/expected/embedded_styles.html');
+    test.equal(expected, actual, 'should inline embedded styles');
 
-    actual    = grunt.file.read('example/test/htmlTest2.html');
-    expected  = grunt.file.read('test/expected/htmlTest2.html');
-    test.equal(expected, actual, 'should inline style tags and ignore style tags with the data-ignore attribute');
+    actual    = grunt.file.read('example/dest/embedded_styles_ignored.html');
+    expected  = grunt.file.read('test/expected/embedded_styles_ignored.html');
+    test.equal(expected, actual, 'should add styles not to be inlined to style block using data-ignore attribute');
+
+    test.done();
+  },
+  externalStyles : function(test) {
+    test.expect(2);
+
+    var actual    = grunt.file.read('example/dest/external_styles.html');
+    var expected  = grunt.file.read('test/expected/external_styles.html');
+    test.equal(expected, actual, 'should inline external styles');
+
+    actual    = grunt.file.read('example/dest/external_styles_ignored.html');
+    expected  = grunt.file.read('test/expected/external_styles_ignored.html');
+    test.equal(expected, actual, 'should add styles not to be inlined to style block using data-ignore attribute');
+
+    test.done();
+  },
+  encodeSpecialCharacters : function(test) {
+    test.expect(1);
+
+    var actual    = grunt.file.read('example/dest/encode_special_characters.html');
+    var expected  = grunt.file.read('test/expected/encode_special_characters.html');
+    test.equal(expected, actual, 'should encode special characters');
 
     test.done();
   },
   litmus: function(test) {
 
     var litmusFunction = new Litmus({
-      subject: 'Custom subject line', // Optional, defaults to title of email + yyyy-mm-dd
+      subject: 'Custom subject line',
       username : 'username',
       password : 'password',
       url      : 'https://yoursite.litmus.com',
