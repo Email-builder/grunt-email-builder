@@ -21,7 +21,6 @@ module.exports = (grunt) ->
         '<%= nodeunit.tests %>'
       ]
 
-
     # JS Tests
     nodeunit:
       tests: ['test/*_test.js']
@@ -30,7 +29,8 @@ module.exports = (grunt) ->
     clean: ['example/test']
 
     emailBuilder:
-      test:
+      litmusTest:
+        files :  "example/test/all.html": "example/html/all.html"
         options:
           encodeSpecialChars: true
           litmus :
@@ -40,13 +40,14 @@ module.exports = (grunt) ->
             url      : 'https://yoursite.litmus.com'
             applications : litmusClients
 
+      email:
+        files :  "example/test/all.html": "example/html/all.html"
+        options:
           emailTest :
             email : 'steven.jmiller@gmail.com'
             subject : 'something'
 
-        files : testFiles
-
-      produce :
+      inlineCss :
         files : testFiles
         options :
           encodeSpecialChars : true
@@ -62,14 +63,18 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-nodeunit'
 
   # Default task.
-  grunt.registerTask 'default', 'emailBuilder:produce'
-  grunt.registerTask 'test',      ['jshint', 'clean', 'emailBuilder:produce', 'nodeunit']
-  grunt.registerTask 'litmus',    ['jshint', 'clean', 'emailBuilder:test', 'nodeunit']
+  grunt.registerTask 'default', 'emailBuilder:inlineCss'
+  grunt.registerTask 'test',   ['jshint', 'clean', 'emailBuilder:inlineCss', 'nodeunit']
+  grunt.registerTask 'litmus', ['jshint', 'clean', 'emailBuilder:inlineCss', 'emailBuilder:litmusTest', 'nodeunit']
+  grunt.registerTask 'email',  ['jshint', 'clean', 'emailBuilder:inlineCss', 'emailBuilder:sendEmail', 'nodeunit']
 
 
-testFiles =
-  "example/test/htmlTest.html": "example/html/htmlTest.html"
-  "example/test/htmlTest2.html": "example/html/htmlTest2.html"
+testFiles = [
+  expand: true
+  cwd: 'example/html'
+  src: ['*.html'],
+  dest: 'example/dest/'
+]
 
 # https://yoursite.litmus.com/emails/clients.xml
 litmusClients = [
