@@ -13,9 +13,7 @@ var path      = require('path'),
     os        = require('os');
     Promise   = require('bluebird'),
     EmailBuilderCore = require('email-builder-core');
-
-
-
+    
 
 function EmailBuilder(task) {
   this.task     = task;

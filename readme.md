@@ -2,6 +2,10 @@
 
 Inline css into HTML or inline css into styletags for emails. You can then send files to Litmus for testing.
 
+You can see an example setups below 
+- [example](https://github.com/yargalot/email-builder-example)
+- [rwdemail](https://github.com/iDVB/rwdemail) by [iDVB](https://github.com/iDVB)
+
 [![NPM version](https://badge.fury.io/js/grunt-email-builder.png)](http://badge.fury.io/js/grunt-email-builder) [![Build Status](https://travis-ci.org/yargalot/Email-Builder.svg?branch=master)](https://travis-ci.org/yargalot/Email-Builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 
 ## Getting Started
@@ -161,7 +165,7 @@ grunt.registerTask('litmus', 'emailBuilder:litmus');
 
 ## Troubleshooting
 
-If you're having issues with Litmus taking forever to load a test or the title of the test is showing up as "No Subject", it is most likely an issue with the Litmus API. You can check the [Litmus status](http://status.litmus.com) page to find out if their having any issues. If that's not the case, submit an issue and we'll look into further. 
+If you're having issues with Litmus taking forever to load a test or the title of the test is showing up as "No Subject", it is most likely an issue with the Litmus API. You can check the [Litmus status](http://status.litmus.com) page to find out if their having any issues. If that's not the case, submit an issue and we'll look into further.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [grunt][grunt].
@@ -188,7 +192,7 @@ Thanks for helping out:
 - Added options.delay
 - Added more logging information about a test. Fixes [#16](https://github.com/yargalot/Email-Builder/issues/16)
 - Handles tests with duplicate names a little better by adding +1 to duplicate title
-  
+
 ### [2.0.0](https://github.com/yargalot/Email-Builder/issues?milestone=1&page=1&state=closed)
 - Send yourself a test email with options.emailTest
 - Update to grunt 4.4
