@@ -1,5 +1,6 @@
 language: node_js
 node_js:
+- '0.12'
 - '0.10'
 before_script:
 - npm install -g grunt-cli
@@ -10,4 +11,5 @@ deploy:
     secure: KNEBEE7H/spulFtDgcRcz6roeE4c8fXXLFD6evADMeTb3qtxsDI9rkz9KIyaf9qjtVdpNmgT8rGtMR0psnmfKTUPhf3PNpwzUZ8aJKNwf9rjs1Xro1AHaIFRkUE0F4ox2i7/cMNCAiygJWXT/yKN1bJPE/3lT3hJLC+HPSxlrpM=
   on:
     tags: true
-    repo: yargalot/Email-Builder
+    repo: Email-builder/grunt-email-builder
+    branch: master
