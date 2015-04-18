@@ -1,14 +1,14 @@
-<!doctype html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <style data-ignore="ignore">
-      .bold { font-weight: bold; }
-      .blue { color: blue; }
-    </style>
-  </head>
-
-  <body>
-    <p class="blue bold">Styles should NOT be inlined</p>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+  <style data-embed>
+    p {
+      font-weight: bold;
+      color: blue;
+    }
+  </style>
+</head>
+<body>
+  <p>Embedded styles should not be inlined</p>
+</body>
 </html>
-

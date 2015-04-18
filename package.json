@@ -1,26 +1,20 @@
 {
   "name": "grunt-email-builder",
-  "description": "Combine Html and Css into an email",
-  "version": "2.0.11",
-  "homepage": "https://github.com/yargalot/Email-Builder",
-  "author": {
-    "name": "Steven Miller",
-    "email": "steven.jmiller@gmail.com",
-    "url": "http://www.stevenjohnmiller.com.au"
-  },
+  "description": "Inline css, send email tests, and send Litmus tests",
+  "version": "3.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yargalot/Email-Builder.git"
+    "url": "https://github.com/Email-builder/grunt-email-builder.git"
   },
-  "bugs": {
-    "url": "https://github.com/yargalot/Email-Builder/issues"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/yargalot/Email-Builder/blob/master/LICENSE-MIT"
-    }
+  "contributors": [
+    "Jeremy Peter <jeremywpeter@gmail.com> (https://github.com/jeremypeter)",
+    "Steve Miller <steven.jmiller@gmail.com> (http://www.stevenjohnmiller.com.au)"
   ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Email-builder/grunt-email-builder/issues"
+  },
+  "homepage": "https://github.com/Email-builder/grunt-email-builder",
   "main": "grunt.js",
   "engines": {
     "node": "*"
@@ -32,23 +26,17 @@
     "gruntplugin"
   ],
   "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-nodeunit": "~0.3.3",
+    "grunt": "~0.4.4",
+    "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-jshint": "~0.9.2",
-    "grunt-contrib-watch": "~0.6.1",
-    "grunt-contrib-clean": "~0.5.0"
+    "grunt-contrib-nodeunit": "~0.3.3",
+    "grunt-contrib-watch": "~0.6.1"
   },
   "peerDependencies": {
     "grunt": "~0.4.4"
   },
   "dependencies": {
-    "nodemailer": "~0.6.0",
-    "cheerio": "~0.15.0",
-    "lodash": "~2.4.1",
-    "cli-table": "~0.3.0",
-    "juice2": "~1.2.0",
-    "bluebird": "~1.2.4",
-    "litmus-api": "~0.3.2",
-    "xmlbuilder": "~2.4.3"
+    "bluebird": "^2.9.24",
+    "email-builder-core": "^1.1.2"
   }
 }

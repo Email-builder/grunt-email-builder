@@ -1,16 +1,15 @@
 language: node_js
 node_js:
+- '0.12'
 - '0.10'
 before_script:
 - npm install -g grunt-cli
 deploy:
   provider: npm
-  email: steven.jmiller@gmail.com
+  email: jeremywpeter@gmail.com
   api_key:
-    secure: NegELP96stAiEo1h/7Ta3QmY4n3T8EjnY2oIp21gPmMvzqi6Crg+RMU5pLAwbTjmpSki+gfSWkRnJOdPaSwK0Gl5bhJgQYb7D7aWsCZbK7r7Lwr0d43jzF7FGbC1v9LUOBkXkpI01nRE2TAHK9XGBPYNZL5e1xfctFnihe7pNkg=
+    secure: k3einOt1dUXl38brzIzMjrBKuri5tZXXTBXmU4XtoX+zVk72qWdLeN3aT/EfoJ8zIiUPAIoaE3rI0OJ5pznRPa12ltQuSVxmH4SC81mepwc+gdtakNV+MB2egKJlqcMd1KmqCD+v316BswZ7u5vBi10cJjiz9Fi21Evm0MWZCjg=
   on:
     tags: true
-    repo: yargalot/Email-Builder
-    all_branches: true
-    node: '0.10'
-
+    repo: Email-builder/grunt-email-builder
+    branch: master
