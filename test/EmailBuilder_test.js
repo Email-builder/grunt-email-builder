@@ -1,7 +1,4 @@
 var grunt         = require('grunt');
-var Litmus        = require('../tasks/lib/litmus');
-var emailBuilder  = require('../tasks/EmailBuilder');
-
 
 /*
   ======== A Handy Little Nodeunit Reference ========
@@ -34,38 +31,33 @@ exports.emailBuilder = {
     
     // TESTS
     // ----------
-    test.expect(2);
+    test.expect(6);
+    var actual;
+    var expected;
 
-    var actual    = grunt.file.read('example/test/htmlTest.html');
-    var expected  = grunt.file.read('test/expected/htmlTest.html');
-    test.equal(expected, actual, 'should inline css links that have data-placement tags');
+    actual    = grunt.file.read('example/dest/conditional_styles.html');
+    expected  = grunt.file.read('test/expected/conditional_styles.html');
+    test.equal(expected, actual, 'should embed conditional styles');
 
-    actual    = grunt.file.read('example/test/htmlTest2.html');
-    expected  = grunt.file.read('test/expected/htmlTest2.html');
-    test.equal(expected, actual, 'should inline style tags and ignore style tags with the data-ignore attribute');
+    actual    = grunt.file.read('example/dest/embedded_styles_ignored.html');
+    expected  = grunt.file.read('test/expected/embedded_styles_ignored.html');
+    test.equal(expected, actual, 'should embed style tags with data-embed attribute');
 
-    test.done();
-  },
-  litmus: function(test) {
+    actual    = grunt.file.read('example/dest/embedded_styles_inlined.html');
+    expected  = grunt.file.read('test/expected/embedded_styles_inlined.html');
+    test.equal(expected, actual, 'should inline embedded styles');
 
-    var litmusFunction = new Litmus({
-      subject: 'Custom subject line', // Optional, defaults to title of email + yyyy-mm-dd
-      username : 'username',
-      password : 'password',
-      url      : 'https://yoursite.litmus.com',
-      applications : []
-    });
+    actual    = grunt.file.read('example/dest/external_styles_embedded.html');
+    expected  = grunt.file.read('test/expected/external_styles_embedded.html');
+    test.equal(expected, actual, 'should embed link tags with data-embed attribute');
 
-    var htmlTest  = '<p></p>';
+    actual    = grunt.file.read('example/dest/external_styles_ignored.html');
+    expected  = grunt.file.read('test/expected/external_styles_ignored.html');
+    test.equal(expected, actual, 'should preserve link tags with data-embed-ignore attribute');
 
-    // TESTS
-    // ----------
-    test.expect(1);
-
-    var actual = grunt.file.read('test/expected/xmlOutput.xml');
-    var expected = litmusFunction.getBuiltXml(htmlTest, 'Test XML');
-
-    test.equal(expected, actual, 'Should return valid xml to send to Litmus');
+    actual    = grunt.file.read('example/dest/external_styles_inlined.html');
+    expected  = grunt.file.read('test/expected/external_styles_inlined.html');
+    test.equal(expected, actual, 'should inline external styles');
 
     test.done();
   }

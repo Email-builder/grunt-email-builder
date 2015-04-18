@@ -33,21 +33,27 @@ module.exports = (grunt) ->
       test:
         options:
           encodeSpecialChars: true
-          litmus :
-            subject: 'Custom subject line' # Optional, defaults to title of email or yyyy-mm-dd if title or options.subject empty
-            username : 'username'
-            password : 'password'
-            url      : 'https://yoursite.litmus.com'
-            applications : litmusClients
+          # litmus :
+          #   subject: 'Custom subject line' # Optional, defaults to title of email or yyyy-mm-dd if title or options.subject empty
+          #   username : 'user'
+          #   password : 'password'
+          #   url      : 'https://yourcompany.litmus.com'
+          #   applications : litmusClients
 
           emailTest :
-            email : 'steven.jmiller@gmail.com'
+            email : 'john.doe@mailinator.com'
             subject : 'something'
 
-        files : testFiles
+        files : 
+          "example/dest/embedded_styles_inlined.html": "example/html/embedded_styles_inlined.html"
 
       produce :
-        files : testFiles
+        files : [
+          expand: true,
+          cwd:  'example/html'
+          src: ['**.html'],
+          dest: 'example/dest/'
+        ]
         options :
           encodeSpecialChars : true
 
@@ -65,11 +71,6 @@ module.exports = (grunt) ->
   grunt.registerTask 'default', 'emailBuilder:produce'
   grunt.registerTask 'test',      ['jshint', 'clean', 'emailBuilder:produce', 'nodeunit']
   grunt.registerTask 'litmus',    ['jshint', 'clean', 'emailBuilder:test', 'nodeunit']
-
-
-testFiles =
-  "example/test/htmlTest.html": "example/html/htmlTest.html"
-  "example/test/htmlTest2.html": "example/html/htmlTest2.html"
 
 # https://yoursite.litmus.com/emails/clients.xml
 litmusClients = [
