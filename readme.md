@@ -1,5 +1,5 @@
 # grunt-email-builder
-[![NPM version](https://badge.fury.io/js/grunt-email-builder.png)](http://badge.fury.io/js/grunt-email-builder) [![Build Status](https://travis-ci.org/Email-builder/grunt-email-builder.svg)](https://travis-ci.org/Email-builder/grunt-email-builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Email-builder/grunt-email-builder)  
+[![npm version](https://badge.fury.io/js/grunt-email-builder.svg)](http://badge.fury.io/js/grunt-email-builder) [![Build Status](https://travis-ci.org/Email-builder/grunt-email-builder.svg)](https://travis-ci.org/Email-builder/grunt-email-builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Email-builder/grunt-email-builder)  
 
 Uses [Email Builder](https://github.com/Email-builder/email-builder-core) to inline css into HTML tags, send tests to Litmus, and send test emails to yourself.
 
