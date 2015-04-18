@@ -1,12 +1,44 @@
 # grunt-email-builder
+[![NPM version](https://badge.fury.io/js/grunt-email-builder.png)](http://badge.fury.io/js/grunt-email-builder) [![Build Status](https://travis-ci.org/Email-builder/grunt-email-builder.svg)](https://travis-ci.org/Email-builder/grunt-email-builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Email-builder/grunt-email-builder)  
 
 Uses [Email Builder](https://github.com/Email-builder/email-builder-core) to inline css into HTML tags, send tests to Litmus, and send test emails to yourself.
+
+As of v3.0.0, you will no longer be able to use the `data-ignore` attribute. Instead, use data attributes `data-embed` and `data-embed-ignore` to prevent email builder from inlining css styles. 
+
+Example:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- styles will be inlined -->
+  <link rel="stylesheet" type="text/css" href="../css/styles.css">
+
+  <!-- styles will be embedded -->
+  <link rel="stylesheet" type="text/css" href="../css/otherStyles.css" data-embed>
+
+  <!-- link tag will be preserved and styles will not be inlined or embedded -->
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' data-embed-ignore>
+
+  <!-- styles will be inlined -->
+  <style>
+    p { color: red; }
+  </style>
+
+  <!-- styles will be embedded -->
+  <style data-embed>
+    h1 { color: black; }
+  </style>
+</head>
+<body>
+  <h1>Heading</h1>
+  <p>Body</p>
+</body>
+</html>
+```
 
 You can see an example setups below 
 - [example](https://github.com/yargalot/email-builder-example)
 - [rwdemail](https://github.com/iDVB/rwdemail) by [iDVB](https://github.com/iDVB)
-
-[![NPM version](https://badge.fury.io/js/grunt-email-builder.png)](http://badge.fury.io/js/grunt-email-builder) [![Build Status](https://travis-ci.org/Email-builder/grunt-email-builder.svg)](https://travis-ci.org/Email-builder/grunt-email-builder) [![Dependency Status](https://gemnasium.com/yargalot/Email-Builder.png)](https://gemnasium.com/yargalot/Email-Builder) [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/) [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Email-builder/grunt-email-builder)
 
 ## Getting Started
 
