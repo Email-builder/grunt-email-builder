@@ -1,17 +1,16 @@
 /* jshint -W030,-W117 */
 
 /*
- * grunt-EmailBuilder
- * https://github.com/yargalot/Email-Builder
+ * grunt-email-builder
+ * https://github.com/Email-builder/grunt-email-builder
  *
- * Copyright (c) 2013 Steven Miller
+ * Copyright (c) 2015 Steven Miller
+ * Copyright (c) 2015 Jeremy Peter
+ * 
  * Licensed under the MIT license.
  */
 
- // Required modules
-var path      = require('path'),
-    os        = require('os');
-    Promise   = require('bluebird'),
+var Promise   = require('bluebird'),
     EmailBuilderCore = require('email-builder-core');
     
 

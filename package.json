@@ -36,8 +36,7 @@
     "grunt": "~0.4.4"
   },
   "dependencies": {
-    "bluebird": "~1.2.4",
-    "email-builder-core": "^1.1.2",
-    "lodash": "~2.4.1"
+    "bluebird": "^2.9.24",
+    "email-builder-core": "^1.1.2"
   }
 }
