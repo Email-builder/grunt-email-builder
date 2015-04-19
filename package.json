@@ -1,7 +1,7 @@
 {
   "name": "grunt-email-builder",
   "description": "Inline css, send email tests, and send Litmus tests",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/Email-builder/grunt-email-builder.git"
