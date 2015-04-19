@@ -124,7 +124,7 @@ Thanks to all [contributors](https://github.com/Email-builder/grunt-email-builde
 
 ## Further Reading
 
-[Release History](https://github.com/Email-builder/grunt-email-builder/wiki/Changelog)  
+[Release History](https://github.com/Email-builder/grunt-email-builder/wiki/Release-History)  
 [Release v2.0 Documentation](https://github.com/Email-builder/grunt-email-builder/wiki/v2.0)
 
 
