@@ -1,7 +1,7 @@
 {
   "name": "grunt-email-builder",
   "description": "Inline css, send email tests, and send Litmus tests",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/Email-builder/grunt-email-builder.git"
@@ -26,17 +26,14 @@
     "gruntplugin"
   ],
   "devDependencies": {
-    "grunt": "~1.0.0",
+    "grunt": "~1.0.1",
     "grunt-contrib-clean": "~1.0.0",
     "grunt-contrib-jshint": "~1.0.0",
     "grunt-contrib-nodeunit": "~1.0.0",
     "grunt-contrib-watch": "~1.0.0"
   },
-  "peerDependencies": {
-    "grunt": ">=0.4.0"
-  },
   "dependencies": {
-    "bluebird": "^3.3.5",
-    "email-builder-core": "^1.3.5"
+    "bluebird": "^3.4.1",
+    "email-builder-core": "^2.0.0"
   }
 }
